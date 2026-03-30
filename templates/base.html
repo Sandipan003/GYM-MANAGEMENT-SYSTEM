@@ -131,7 +131,7 @@
 <!-- TopNavBar -->
 <nav class="fixed top-0 w-full z-50 bg-[#0e0e0e]/60 backdrop-blur-md flex justify-between items-center px-8 py-4 shadow-[0_8px_32px_0_rgba(215,255,0,0.05)]">
   <div class="flex items-center gap-8">
-    <a href="{% url 'dashboard' %}" class="text-2xl font-black text-[#d4fb00] tracking-tighter uppercase font-headline hover:opacity-80 transition-opacity">KINETIC PULSE</a>
+    <a href="{% url 'staff' %}" class="text-2xl font-black text-[#d4fb00] tracking-tighter uppercase font-headline hover:opacity-80 transition-opacity">KINETIC PULSE</a>
     <div class="hidden md:flex items-center bg-surface-container-highest px-4 py-2 rounded-full gap-3">
       <span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
       <input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-outline w-64" placeholder="Search members..." type="text" id="global-search"/>
@@ -165,8 +165,8 @@
   </div>
 
   <nav class="flex-1 space-y-2">
-    <a href="{% url 'dashboard' %}" class="flex items-center gap-4 pl-6 py-3 font-headline text-sm uppercase font-semibold tracking-widest group transition-colors duration-200
-      {% if page == 'dashboard' %}text-[#d4fb00] border-l-4 border-[#d4fb00] bg-gradient-to-r from-[#d4fb00]/5 to-transparent{% else %}text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#262626]/50{% endif %}">
+    <a href="{% url 'staff' %}" class="flex items-center gap-4 pl-6 py-3 font-headline text-sm uppercase font-semibold tracking-widest group transition-colors duration-200
+      {% if page == 'staff' %}text-[#d4fb00] border-l-4 border-[#d4fb00] bg-gradient-to-r from-[#d4fb00]/5 to-transparent{% else %}text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#262626]/50{% endif %}">
       <span class="material-symbols-outlined transition-transform group-hover:scale-110">dashboard</span>
       <span>Dashboard</span>
     </a>
@@ -217,7 +217,7 @@
 
 <!-- Mobile Bottom Nav -->
 <nav class="lg:hidden fixed bottom-0 w-full bg-[#0e0e0e]/95 backdrop-blur-lg border-t border-outline-variant/10 flex justify-around py-3 z-50">
-  <a href="{% url 'dashboard' %}" class="flex flex-col items-center gap-1 {% if page == 'dashboard' %}text-primary{% else %}text-on-surface-variant{% endif %}">
+  <a href="{% url 'staff' %}" class="flex flex-col items-center gap-1 {% if page == 'staff' %}text-primary{% else %}text-on-surface-variant{% endif %}">
     <span class="material-symbols-outlined">dashboard</span>
     <span class="text-[9px] uppercase font-bold">Dash</span>
   </a>

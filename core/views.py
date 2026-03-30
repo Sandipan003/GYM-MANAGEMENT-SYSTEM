@@ -35,7 +35,7 @@ def home(request):
 def login_success(request):
     """Redirect users to appropriate dashboard based on role"""
     if request.user.is_staff:
-        return redirect('dashboard')
+        return redirect('staff')
     else:
         # Check if user has an associated member profile
         if hasattr(request.user, 'member_profile'):
@@ -115,6 +115,6 @@ def dashboard(request):
         'recent_activity': recent_activity,
         'chart_bars': chart_bars,
         'today': today,
-        'page': 'dashboard',
+        'page': 'staff',
     }
     return render(request, 'core/dashboard.html', context)

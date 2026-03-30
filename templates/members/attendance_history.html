@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>KINETICA | Attendance History</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f5ffc5",
+                        "primary-container": "#d4fb00",
+                        "on-primary": "#556600",
+                        "secondary": "#00eefc",
+                        "background": "#0e0e0e",
+                        "surface": "#0e0e0e",
+                        "surface-container": "#1a1a1a",
+                        "on-surface": "#ffffff",
+                        "on-surface-variant": "#adaaaa",
+                        "outline-variant": "#484847",
+                        "error": "#ff7351",
+                    },
+                    fontFamily: {
+                        "headline": ["Lexend"],
+                        "body": ["Inter"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-card { background: rgba(38, 38, 38, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .kinetic-gradient { background: linear-gradient(135deg, #d4fb00 0%, #00eefc 100%); }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+    <!-- Top Navigation Rail -->
+    <nav class="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-outline-variant/10 flex justify-between items-center px-8 h-20">
+        <a href="{% url 'member_dashboard' %}" class="text-2xl font-black text-primary-container italic tracking-tighter uppercase font-headline">KINETICA</a>
+        <div class="flex items-center gap-6">
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+                {% if member.photo %}
+                    <img src="{{ member.photo.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full bg-surface-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">person</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Side Navigation -->
+    <aside class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-64 z-40 bg-surface/80 backdrop-blur-lg flex flex-col py-6 px-4 gap-2 font-headline font-medium border-r border-outline-variant/10">
+        <div class="mb-8 px-4">
+            <h3 class="text-primary-container font-black text-lg uppercase tracking-tight">{{ member.get_full_name }}</h3>
+            <p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold">{{ member.plan.name|default:"Elite Member" }}</p>
+        </div>
+        <nav class="flex-grow space-y-1 text-xs uppercase tracking-widest font-bold">
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="{% url 'member_dashboard' %}">
+                <span class="material-symbols-outlined">grid_view</span>Dashboard
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 bg-surface-container-highest text-primary-container border-l-4 border-primary-container rounded-r-xl" href="{% url 'member_attendance' %}">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">insights</span>Performance
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="#">
+                <span class="material-symbols-outlined">event_repeat</span>Classes
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="#">
+                <span class="material-symbols-outlined">card_membership</span>Membership
+            </a>
+        </nav>
+        <div class="mt-auto space-y-1 text-xs uppercase tracking-widest font-bold">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-error transition-colors">
+                    <span class="material-symbols-outlined">logout</span>Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 mt-20 p-8 min-h-screen">
+        <header class="mb-10">
+            <h1 class="text-5xl font-headline font-black tracking-tighter mb-2">ATTENDANCE <span class="text-primary-container uppercase">Archive</span></h1>
+            <p class="text-on-surface-variant font-body uppercase text-xs tracking-widest font-bold">Your complete kinetic log history.</p>
+        </header>
+
+        <div class="bg-surface-container rounded-3xl border border-outline-variant/10 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-outline-variant/10 bg-surface-container-high/50">
+                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Date & Time</th>
+                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Zone</th>
+                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Duration</th>
+                            <th class="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Activity</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/5">
+                        {% for att in attendance_list %}
+                        <tr class="hover:bg-primary-container/[0.02] transition-colors group">
+                            <td class="px-8 py-6">
+                                <p class="text-sm font-headline font-bold uppercase italic text-on-surface">{{ att.check_in|date:"d M Y" }}</p>
+                                <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">{{ att.check_in|date:"H:i" }} — {% if att.check_out %}{{ att.check_out|date:"H:i" }}{% else %}Active{% endif %}</p>
+                            </td>
+                            <td class="px-8 py-6">
+                                <span class="px-3 py-1 bg-surface-container-highest rounded-full text-[10px] font-black uppercase tracking-widest text-secondary border border-secondary/10">
+                                    {{ att.get_zone_display }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-6 font-headline font-black text-sm italic">
+                                {% if att.duration_minutes %}
+                                    {{ att.duration_minutes }} <span class="text-[10px] not-italic text-on-surface-variant">MIN</span>
+                                {% else %}
+                                    <span class="text-primary-container text-[10px]">IN PROGRESS</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-8 py-6 text-xs text-on-surface-variant font-bold uppercase tracking-widest">
+                                {{ att.get_activity_display }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-8 py-20 text-center text-on-surface-variant font-headline font-bold uppercase italic tracking-widest">
+                                No logs detected in the kinetic archive.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if attendance_list.has_other_pages %}
+            <div class="px-8 py-6 bg-surface-container-high/30 border-t border-outline-variant/10 flex justify-between items-center">
+                <div class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
+                    Page {{ attendance_list.number }} of {{ attendance_list.paginator.num_pages }}
+                </div>
+                <div class="flex gap-2">
+                    {% if attendance_list.has_previous %}
+                        <a href="?page={{ attendance_list.previous_page_number }}" class="px-4 py-2 bg-surface-container-highest rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-primary-container transition-colors">Prev</a>
+                    {% endif %}
+                    {% if attendance_list.has_next %}
+                        <a href="?page={{ attendance_list.next_page_number }}" class="px-4 py-2 bg-surface-container-highest rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-primary-container transition-colors">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
