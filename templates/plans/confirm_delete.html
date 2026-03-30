@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Deactivate Plan{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto mt-20 text-center">
+  <div class="w-20 h-20 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-6">
+    <span class="material-symbols-outlined text-4xl text-error">warning</span>
+  </div>
+  <h1 class="text-3xl font-black font-headline tracking-tighter mb-3">Deactivate Plan?</h1>
+  <p class="text-on-surface-variant mb-8">This will hide <strong class="text-on-surface">{{ plan.name }}</strong> from new memberships. Existing members will not be affected.</p>
+  <form method="post" class="flex items-center justify-center gap-4">
+    {% csrf_token %}
+    <a href="{% url 'plan_list' %}" class="px-6 py-3 rounded-xl border border-outline-variant/30 text-on-surface-variant font-bold uppercase tracking-widest transition-colors hover:text-white">Cancel</a>
+    <button type="submit" class="px-6 py-3 bg-error text-white rounded-xl font-bold uppercase tracking-widest hover:brightness-110 transition-all">Deactivate</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>{% block title %}KINETIC PULSE{% endblock %} | Elite Performance</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-tint": "#f5ffc5",
+            "surface-dim": "#0e0e0e",
+            "inverse-on-surface": "#565555",
+            "surface-container-highest": "#262626",
+            "on-error": "#450900",
+            "secondary": "#00eefc",
+            "surface-container-low": "#131313",
+            "error-dim": "#d53d18",
+            "primary-fixed": "#d4fb00",
+            "surface-variant": "#262626",
+            "on-primary-fixed": "#3d4a00",
+            "on-secondary": "#005359",
+            "on-tertiary": "#665600",
+            "secondary-fixed-dim": "#00deec",
+            "on-error-container": "#ffd2c8",
+            "surface": "#0e0e0e",
+            "on-background": "#ffffff",
+            "background": "#0e0e0e",
+            "error": "#ff7351",
+            "primary-container": "#d4fb00",
+            "tertiary-fixed": "#fddb42",
+            "secondary-fixed": "#00eefc",
+            "surface-container": "#1a1a1a",
+            "surface-container-high": "#20201f",
+            "inverse-surface": "#fcf9f8",
+            "outline-variant": "#484847",
+            "inverse-primary": "#556600",
+            "primary": "#f5ffc5",
+            "primary-fixed-dim": "#c7ec00",
+            "on-primary": "#556600",
+            "surface-bright": "#2c2c2c",
+            "secondary-container": "#006970",
+            "on-primary-container": "#4d5d00",
+            "on-surface-variant": "#adaaaa",
+            "on-surface": "#ffffff",
+            "error-container": "#b92902",
+            "on-tertiary-container": "#5c4d00",
+            "secondary-dim": "#00deec",
+            "on-secondary-container": "#e3fdff",
+            "surface-container-lowest": "#000000",
+            "tertiary": "#ffeba0",
+            "tertiary-container": "#fddb42",
+            "outline": "#767575",
+            "primary-dim": "#c9ef00",
+          },
+          fontFamily: {
+            "headline": ["Lexend"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+        },
+      },
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .glass-card {
+      background: rgba(38, 38, 38, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .kinetic-gradient { background: linear-gradient(135deg, #d4fb00 0%, #00eefc 100%); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0e0e0e; }
+    ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
+    .glass-row {
+      background: rgba(38, 38, 38, 0.4);
+      backdrop-filter: blur(12px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-row:hover {
+      background: rgba(212, 251, 0, 0.05);
+      transform: translateX(4px);
+    }
+    .toast {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+
+<!-- Toast Messages -->
+{% if messages %}
+<div class="fixed top-4 right-4 z-[100] space-y-2" id="toast-container">
+  {% for message in messages %}
+  <div class="toast flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl border border-outline-variant/20 max-w-sm
+    {% if message.tags == 'success' %}bg-surface-container border-primary/20{% elif message.tags == 'error' %}bg-error-container{% else %}bg-surface-container-high{% endif %}">
+    <span class="material-symbols-outlined {% if message.tags == 'success' %}text-primary{% elif message.tags == 'error' %}text-error{% else %}text-secondary{% endif %}">
+      {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+    </span>
+    <p class="text-sm font-medium flex-1">{{ message }}</p>
+    <button onclick="this.parentElement.remove()" class="text-on-surface-variant hover:text-white">
+      <span class="material-symbols-outlined text-sm">close</span>
+    </button>
+  </div>
+  {% endfor %}
+</div>
+<script>
+  setTimeout(() => {
+    const toasts = document.getElementById('toast-container');
+    if (toasts) toasts.style.opacity = '0';
+    setTimeout(() => { if (toasts) toasts.remove(); }, 500);
+  }, 5000);
+</script>
+{% endif %}
+
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#0e0e0e]/60 backdrop-blur-md flex justify-between items-center px-8 py-4 shadow-[0_8px_32px_0_rgba(215,255,0,0.05)]">
+  <div class="flex items-center gap-8">
+    <a href="{% url 'dashboard' %}" class="text-2xl font-black text-[#d4fb00] tracking-tighter uppercase font-headline hover:opacity-80 transition-opacity">KINETIC PULSE</a>
+    <div class="hidden md:flex items-center bg-surface-container-highest px-4 py-2 rounded-full gap-3">
+      <span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
+      <input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-outline w-64" placeholder="Search members..." type="text" id="global-search"/>
+    </div>
+  </div>
+  <div class="flex items-center gap-6">
+    <a href="{% url 'attendance_reports' %}" class="relative text-[#adaaaa] hover:text-[#f5ffc5] transition-all duration-300">
+      <span class="material-symbols-outlined">notifications</span>
+    </a>
+    <a href="{% url 'plan_list' %}" class="text-[#adaaaa] hover:text-[#f5ffc5] transition-all duration-300">
+      <span class="material-symbols-outlined">settings</span>
+    </a>
+    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container flex items-center justify-center bg-surface-container-highest">
+      <span class="material-symbols-outlined text-primary">person</span>
+    </div>
+  </div>
+</nav>
+
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-64 z-40 bg-[#0e0e0e]/80 backdrop-blur-xl flex-col pt-24 pb-8 px-0 hidden lg:flex">
+  <div class="px-6 mb-10">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 kinetic-gradient rounded-xl flex items-center justify-center">
+        <span class="material-symbols-outlined text-black font-bold">bolt</span>
+      </div>
+      <div>
+        <p class="text-[#d4fb00] font-black italic font-headline leading-tight">KINETIC</p>
+        <p class="text-[10px] text-on-surface-variant tracking-[0.2em] uppercase">Elite Performance</p>
+      </div>
+    </div>
+  </div>
+
+  <nav class="flex-1 space-y-2">
+    <a href="{% url 'dashboard' %}" class="flex items-center gap-4 pl-6 py-3 font-headline text-sm uppercase font-semibold tracking-widest group transition-colors duration-200
+      {% if page == 'dashboard' %}text-[#d4fb00] border-l-4 border-[#d4fb00] bg-gradient-to-r from-[#d4fb00]/5 to-transparent{% else %}text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#262626]/50{% endif %}">
+      <span class="material-symbols-outlined transition-transform group-hover:scale-110">dashboard</span>
+      <span>Dashboard</span>
+    </a>
+    <a href="{% url 'member_list' %}" class="flex items-center gap-4 pl-6 py-3 font-headline text-sm uppercase font-semibold tracking-widest group transition-colors duration-200
+      {% if page == 'members' %}text-[#d4fb00] border-l-4 border-[#d4fb00] bg-gradient-to-r from-[#d4fb00]/5 to-transparent{% else %}text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#262626]/50{% endif %}">
+      <span class="material-symbols-outlined transition-transform group-hover:scale-110">group</span>
+      <span>Member List</span>
+    </a>
+    <a href="{% url 'plan_list' %}" class="flex items-center gap-4 pl-6 py-3 font-headline text-sm uppercase font-semibold tracking-widest group transition-colors duration-200
+      {% if page == 'plans' %}text-[#d4fb00] border-l-4 border-[#d4fb00] bg-gradient-to-r from-[#d4fb00]/5 to-transparent{% else %}text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#262626]/50{% endif %}">
+      <span class="material-symbols-outlined transition-transform group-hover:scale-110">payments</span>
+      <span>Membership Plans</span>
+    </a>
+    <a href="{% url 'payment_list' %}" class="flex items-center gap-4 pl-6 py-3 font-headline text-sm uppercase font-semibold tracking-widest group transition-colors duration-200
+      {% if page == 'payments' %}text-[#d4fb00] border-l-4 border-[#d4fb00] bg-gradient-to-r from-[#d4fb00]/5 to-transparent{% else %}text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#262626]/50{% endif %}">
+      <span class="material-symbols-outlined transition-transform group-hover:scale-110">receipt_long</span>
+      <span>Payments</span>
+    </a>
+    <a href="{% url 'attendance_reports' %}" class="flex items-center gap-4 pl-6 py-3 font-headline text-sm uppercase font-semibold tracking-widest group transition-colors duration-200
+      {% if page == 'attendance' %}text-[#d4fb00] border-l-4 border-[#d4fb00] bg-gradient-to-r from-[#d4fb00]/5 to-transparent{% else %}text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#262626]/50{% endif %}">
+      <span class="material-symbols-outlined transition-transform group-hover:scale-110">analytics</span>
+      <span>Attendance</span>
+    </a>
+  </nav>
+
+  <div class="px-6 mt-auto space-y-4">
+    <a href="{% url 'member_add' %}" class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-bold uppercase tracking-tighter hover:brightness-110 transition-all flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined text-lg">add</span>
+      Quick Add Member
+    </a>
+    <div class="pt-4 space-y-2 border-t border-outline-variant/20">
+      <a href="{% url 'checkin' %}" class="flex items-center gap-3 text-on-surface-variant hover:text-white py-2 text-xs uppercase tracking-widest font-semibold transition-colors">
+        <span class="material-symbols-outlined text-sm">how_to_reg</span>Log Check-in
+      </a>
+      <a href="{% url 'logout' %}" class="flex items-center gap-3 text-error/70 hover:text-error py-2 text-xs uppercase tracking-widest font-semibold transition-colors">
+        <span class="material-symbols-outlined text-sm">logout</span>Logout
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-gradient-to-r from-[#d4fb00]/10 to-transparent w-[2px] h-full absolute right-0 top-0"></div>
+</aside>
+
+<!-- Main Content -->
+<main class="lg:ml-64 pt-24 min-h-screen px-8 pb-12">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Mobile Bottom Nav -->
+<nav class="lg:hidden fixed bottom-0 w-full bg-[#0e0e0e]/95 backdrop-blur-lg border-t border-outline-variant/10 flex justify-around py-3 z-50">
+  <a href="{% url 'dashboard' %}" class="flex flex-col items-center gap-1 {% if page == 'dashboard' %}text-primary{% else %}text-on-surface-variant{% endif %}">
+    <span class="material-symbols-outlined">dashboard</span>
+    <span class="text-[9px] uppercase font-bold">Dash</span>
+  </a>
+  <a href="{% url 'member_list' %}" class="flex flex-col items-center gap-1 {% if page == 'members' %}text-primary{% else %}text-on-surface-variant{% endif %}">
+    <span class="material-symbols-outlined">group</span>
+    <span class="text-[9px] uppercase font-bold">Members</span>
+  </a>
+  <a href="{% url 'member_add' %}" class="flex flex-col items-center gap-1">
+    <div class="w-12 h-12 -mt-8 bg-primary-container rounded-full flex items-center justify-center shadow-lg shadow-primary-container/20">
+      <span class="material-symbols-outlined text-on-primary-container">add</span>
+    </div>
+  </a>
+  <a href="{% url 'plan_list' %}" class="flex flex-col items-center gap-1 {% if page == 'plans' %}text-primary{% else %}text-on-surface-variant{% endif %}">
+    <span class="material-symbols-outlined">payments</span>
+    <span class="text-[9px] uppercase font-bold">Plans</span>
+  </a>
+  <a href="{% url 'attendance_reports' %}" class="flex flex-col items-center gap-1 {% if page == 'attendance' %}text-primary{% else %}text-on-surface-variant{% endif %}">
+    <span class="material-symbols-outlined">analytics</span>
+    <span class="text-[9px] uppercase font-bold">Stats</span>
+  </a>
+</nav>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

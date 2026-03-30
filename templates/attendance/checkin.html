@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Log Check-in{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+  <a href="{% url 'attendance_reports' %}" class="flex items-center gap-2 text-on-surface-variant hover:text-primary text-sm font-bold uppercase tracking-widest mb-8 transition-colors w-fit">
+    <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Attendance
+  </a>
+
+  <!-- Header -->
+  <div class="mb-10 text-center">
+    <div class="w-20 h-20 kinetic-gradient rounded-2xl flex items-center justify-center mx-auto mb-6">
+      <span class="material-symbols-outlined text-4xl text-black">how_to_reg</span>
+    </div>
+    <h1 class="text-4xl font-black font-headline tracking-tighter mb-2">Log Check-in</h1>
+    <p class="text-on-surface-variant">Record a member's gym entry</p>
+  </div>
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+    <div class="bg-surface-container rounded-2xl p-8 border border-outline-variant/10 space-y-5">
+      <div>
+        <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Member *</label>
+        {{ form.member }}
+        {% if form.member.errors %}<p class="text-error text-xs mt-1">{{ form.member.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="grid grid-cols-2 gap-5">
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Zone</label>
+          {{ form.zone }}
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Activity</label>
+          {{ form.activity }}
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Notes</label>
+        {{ form.notes }}
+      </div>
+    </div>
+
+    <div class="bg-surface-container rounded-2xl p-4 border border-secondary/10 flex items-center gap-3">
+      <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+      <p class="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Check-in time will be recorded as <span class="text-secondary">NOW</span></p>
+    </div>
+
+    <div class="flex items-center justify-between gap-4">
+      <a href="{% url 'attendance_reports' %}" class="px-6 py-3 rounded-xl text-on-surface-variant hover:text-white border border-outline-variant/30 font-bold text-sm uppercase tracking-widest transition-all">Cancel</a>
+      <button type="submit" class="px-8 py-3 bg-secondary text-on-secondary-container rounded-xl font-black text-sm uppercase tracking-widest hover:brightness-110 transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined">how_to_reg</span> Confirm Check-in
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

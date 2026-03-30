@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block title %}Member Roster{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+  <div>
+    <h1 class="font-headline text-5xl font-black text-on-surface tracking-tighter mb-2">Member Roster</h1>
+    <p class="text-on-surface-variant font-medium flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+      {{ total_active }} Active Members enrolled
+    </p>
+  </div>
+  <a href="{% url 'member_add' %}" class="flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold uppercase tracking-tighter hover:brightness-110 transition-all">
+    <span class="material-symbols-outlined">person_add</span>
+    Add Member
+  </a>
+</div>
+
+<!-- Toolbar -->
+<form method="get" class="bg-surface-container p-4 rounded-2xl mb-6 flex flex-wrap items-center justify-between gap-4">
+  <div class="flex flex-wrap items-center gap-3">
+    <div class="relative">
+      <select name="status" onchange="this.form.submit()" class="bg-surface-container-highest border-0 text-xs font-bold uppercase tracking-widest text-on-surface rounded-xl pl-4 pr-10 py-3 appearance-none focus:ring-1 focus:ring-primary cursor-pointer">
+        <option value="">Status: All</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+        <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Expired</option>
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+      </select>
+      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-on-surface-variant">expand_more</span>
+    </div>
+    <div class="relative">
+      <select name="plan" onchange="this.form.submit()" class="bg-surface-container-highest border-0 text-xs font-bold uppercase tracking-widest text-on-surface rounded-xl pl-4 pr-10 py-3 appearance-none focus:ring-1 focus:ring-primary cursor-pointer">
+        <option value="">Plan: All</option>
+        {% for plan in plans %}
+        <option value="{{ plan.pk }}" {% if plan_filter == plan.pk|stringformat:"s" %}selected{% endif %}>{{ plan.name }}</option>
+        {% endfor %}
+      </select>
+      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-on-surface-variant">expand_more</span>
+    </div>
+    {% if search or status_filter or plan_filter %}
+    <a href="{% url 'member_list' %}" class="text-xs font-bold text-error/70 hover:text-error px-3 py-3 transition-colors flex items-center gap-1">
+      <span class="material-symbols-outlined text-sm">close</span> Clear
+    </a>
+    {% endif %}
+  </div>
+  <div class="relative w-full md:w-80">
+    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+    <input name="search" value="{{ search }}" class="w-full bg-surface-container-highest border-0 rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-1 focus:ring-primary" placeholder="Find member by name, email or ID..."/>
+  </div>
+</form>
+
+<!-- Member Table -->
+<div class="overflow-x-auto">
+  <table class="w-full border-separate border-spacing-y-3">
+    <thead>
+      <tr class="text-left text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-black">
+        <th class="pb-2 pl-6">Member</th>
+        <th class="pb-2">Membership Plan</th>
+        <th class="pb-2">Status</th>
+        <th class="pb-2">Last Activity</th>
+        <th class="pb-2">Expiry</th>
+        <th class="pb-2 text-right pr-6">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in members %}
+      <tr class="glass-row group">
+        <td class="py-4 pl-6 rounded-l-2xl">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-500 bg-surface-container-highest flex items-center justify-center">
+              {% if member.photo %}
+              <img src="{{ member.photo.url }}" alt="{{ member.get_full_name }}" class="w-full h-full object-cover"/>
+              {% else %}
+              <span class="material-symbols-outlined text-on-surface-variant text-2xl">person</span>
+              {% endif %}
+            </div>
+            <div>
+              <div class="font-headline font-bold text-on-surface">{{ member.get_full_name }}</div>
+              <div class="text-xs text-on-surface-variant">ID: #{{ member.member_id }}</div>
+            </div>
+          </div>
+        </td>
+        <td class="py-4">
+          {% if member.plan %}
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full
+              {% if member.plan.color_label == 'secondary' %}bg-secondary shadow-[0_0_8px_rgba(0,238,252,0.6)]
+              {% elif member.plan.color_label == 'tertiary' %}bg-tertiary
+              {% elif member.plan.color_label == 'outline' %}bg-outline
+              {% else %}bg-primary shadow-[0_0_8px_rgba(212,251,0,0.6)]{% endif %}"></span>
+            <span class="text-xs font-bold tracking-wider uppercase">{{ member.plan.name }}</span>
+          </div>
+          {% else %}
+          <span class="text-xs text-on-surface-variant">No Plan</span>
+          {% endif %}
+        </td>
+        <td class="py-4">
+          {% if member.status == 'active' %}
+          <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">Active</span>
+          {% elif member.status == 'expired' %}
+          <span class="px-3 py-1 bg-error/10 text-error text-[10px] font-black uppercase tracking-widest rounded-full border border-error/20">Expired</span>
+          {% elif member.status == 'pending' %}
+          <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] font-black uppercase tracking-widest rounded-full border border-tertiary/20">Pending</span>
+          {% else %}
+          <span class="px-3 py-1 bg-outline-variant/20 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-full">Inactive</span>
+          {% endif %}
+        </td>
+        <td class="py-4">
+          {% with last=member.get_last_attendance %}
+          {% if last %}
+          <div class="text-xs font-medium text-on-surface-variant">{{ last.check_in|timesince }} ago</div>
+          {% else %}
+          <div class="text-xs text-outline">Never</div>
+          {% endif %}
+          {% endwith %}
+        </td>
+        <td class="py-4">
+          {% if member.membership_expiry %}
+          <div class="text-xs font-medium {% if member.membership_expiry < today %}text-error{% else %}text-on-surface-variant{% endif %}">
+            {{ member.membership_expiry|date:"M d, Y" }}
+          </div>
+          {% else %}
+          <span class="text-xs text-outline">—</span>
+          {% endif %}
+        </td>
+        <td class="py-4 text-right pr-6 rounded-r-2xl">
+          <div class="flex items-center justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
+            <a href="{% url 'member_detail' member.pk %}" class="p-2 hover:bg-surface-container-highest rounded-lg text-on-surface-variant hover:text-white transition-colors" title="View Profile">
+              <span class="material-symbols-outlined text-lg">visibility</span>
+            </a>
+            <a href="{% url 'member_edit' member.pk %}" class="p-2 hover:bg-surface-container-highest rounded-lg text-on-surface-variant hover:text-white transition-colors" title="Edit">
+              <span class="material-symbols-outlined text-lg">edit_note</span>
+            </a>
+            <a href="{% url 'payment_add' %}?member={{ member.pk }}" class="px-4 py-2 bg-secondary/10 hover:bg-secondary text-secondary hover:text-on-secondary-container rounded-lg text-[10px] font-black uppercase tracking-widest transition-all" title="Record Payment">
+              {% if member.status == 'expired' %}Renew{% elif member.status == 'pending' %}Approve{% else %}Pay{% endif %}
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center py-20">
+          <span class="material-symbols-outlined text-6xl text-outline mb-4 block">group</span>
+          <p class="text-on-surface-variant text-lg font-bold mb-2">No members found</p>
+          <p class="text-outline text-sm mb-6">
+            {% if search %}No results for "{{ search }}"{% else %}Add your first gym member to get started{% endif %}
+          </p>
+          <a href="{% url 'member_add' %}" class="inline-flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold">
+            <span class="material-symbols-outlined">person_add</span> Add First Member
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if members.has_other_pages %}
+<div class="mt-8 flex items-center justify-between">
+  <div class="text-[10px] text-on-surface-variant uppercase tracking-widest font-black">
+    Showing <span class="text-on-surface">{{ members.start_index }} - {{ members.end_index }}</span> of {{ members.paginator.count }} members
+  </div>
+  <div class="flex gap-2">
+    {% if members.has_previous %}
+    <a href="?page={{ members.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </a>
+    {% else %}
+    <span class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant opacity-30 cursor-not-allowed">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </span>
+    {% endif %}
+
+    {% for i in members.paginator.page_range %}
+    {% if members.number == i %}
+    <span class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary font-black border border-primary/20">{{ i }}</span>
+    {% elif i >= members.number|add:"-2" and i <= members.number|add:"2" %}
+    <a href="?page={{ i }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-colors">{{ i }}</a>
+    {% endif %}
+    {% endfor %}
+
+    {% if members.has_next %}
+    <a href="?page={{ members.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Pass today's date to template for expiry color comparison
+const today = new Date('{{ today|date:"Y-m-d" }}');
+</script>
+{% endblock %}

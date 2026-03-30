@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Analytics{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+  <!-- Header -->
+  <div class="flex justify-between items-end">
+    <div>
+      <h1 class="text-4xl font-headline font-black tracking-tight text-on-surface">
+        Attendance <span class="text-secondary">Analytics</span>
+      </h1>
+      <p class="text-on-surface-variant font-label tracking-wide uppercase text-xs mt-1">
+        Real-time performance monitoring & member flow
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <a href="{% url 'checkin' %}" class="bg-primary-container text-on-primary-container px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:brightness-110 transition-all">
+        <span class="material-symbols-outlined text-sm">how_to_reg</span> Log Check-in
+      </a>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-surface-container-low p-4 rounded-2xl border-l-2 border-secondary/40">
+      <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Active Now</p>
+      <p class="text-3xl font-black font-headline text-secondary">{{ active_now }}</p>
+    </div>
+    <div class="bg-surface-container-low p-4 rounded-2xl border-l-2 border-primary/40">
+      <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Today's Entries</p>
+      <p class="text-3xl font-black font-headline text-primary">{{ todays_checkins.count }}</p>
+    </div>
+    <div class="bg-surface-container-low p-4 rounded-2xl border-l-2 border-tertiary/40">
+      <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Total Members</p>
+      <p class="text-3xl font-black font-headline text-tertiary">{{ total_members }}</p>
+    </div>
+    <div class="bg-surface-container-low p-4 rounded-2xl border-l-2 border-outline-variant/40">
+      <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Daily Rate</p>
+      <p class="text-3xl font-black font-headline text-on-surface">{{ freq_daily }}%</p>
+    </div>
+  </div>
+
+  <!-- Chart Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Peak Hours Bar Chart -->
+    <div class="lg:col-span-8 bg-surface-container/60 backdrop-blur-lg rounded-3xl p-8 border border-outline-variant/15">
+      <div class="flex justify-between items-center mb-8">
+        <h3 class="font-headline font-bold text-xl uppercase tracking-tighter">
+          Peak Hours <span class="text-primary ml-2 opacity-50">Usage Heatmap</span>
+        </h3>
+        <div class="flex items-center gap-2 text-xs font-bold text-on-surface-variant">
+          <span class="w-3 h-3 bg-primary-container rounded-sm"></span> PEAK
+        </div>
+      </div>
+      <div class="relative h-[260px] flex items-end justify-between gap-2 px-2">
+        {% for hour in peak_hours %}
+        <div class="flex flex-col items-center flex-1 group">
+          <div class="text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity mb-1">
+            {{ hour.count }}
+          </div>
+          <div class="w-full rounded-t-lg transition-all duration-700 relative
+            {% if hour.is_peak %}bg-primary-container shadow-[0_0_20px_rgba(212,251,0,0.4)]
+            {% elif hour.height >= 60 %}bg-primary-container/80
+            {% elif hour.height >= 30 %}bg-primary-container/50
+            {% else %}bg-surface-container-highest{% endif %}"
+            style="height: {{ hour.height }}%"></div>
+          <span class="mt-3 text-[9px] font-bold text-on-surface-variant whitespace-nowrap">{{ hour.label }}</span>
+        </div>
+        {% empty %}
+        <div class="w-full text-center text-on-surface-variant py-8">
+          No attendance data available yet.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Frequency Split Donut -->
+    <div class="lg:col-span-4 bg-surface-container/60 backdrop-blur-lg rounded-3xl p-8 border border-outline-variant/15 space-y-6">
+      <h3 class="font-headline font-bold text-xl uppercase tracking-tighter">
+        Frequency <span class="text-secondary opacity-50">Split</span>
+      </h3>
+      <div class="relative flex justify-center py-6">
+        <svg class="w-44 h-44 -rotate-90" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" fill="transparent" stroke="#262626" stroke-width="10"/>
+          <!-- Daily segment -->
+          <circle cx="50" cy="50" r="40" fill="transparent" stroke="#d4fb00"
+            stroke-dasharray="{{ freq_daily|floatformat:0 }} {{ 100|add:"-freq_daily"|add:0 }}"
+            stroke-dashoffset="0" stroke-linecap="round" stroke-width="10"
+            style="stroke-dasharray: calc({{ freq_daily }} * 2.51327) calc(100 * 2.51327); stroke-dashoffset: 0;"/>
+          <!-- Weekly segment -->
+          <circle cx="50" cy="50" r="40" fill="transparent" stroke="#00eefc"
+            stroke-width="10" opacity="0.6"
+            style="stroke-dasharray: calc({{ freq_weekly }} * 2.51327) calc(100 * 2.51327); stroke-dashoffset: calc(-1 * {{ freq_daily }} * 2.51327);"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span class="text-3xl font-headline font-black">{{ total_members }}</span>
+          <span class="text-[10px] uppercase font-bold text-on-surface-variant">Members</span>
+        </div>
+      </div>
+      <div class="space-y-4 pt-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-primary-container"></span>
+            <span class="text-sm">Daily Grind</span>
+          </div>
+          <span class="text-sm font-black">{{ freq_daily }}%</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-secondary"></span>
+            <span class="text-sm">Weekly Warriors</span>
+          </div>
+          <span class="text-sm font-black">{{ freq_weekly }}%</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-surface-container-highest"></span>
+            <span class="text-sm">Occasional</span>
+          </div>
+          <span class="text-sm font-black">{{ freq_occasional }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's Live Check-in Feed -->
+    <div class="lg:col-span-12 bg-surface-container/60 backdrop-blur-lg rounded-3xl p-8 border border-outline-variant/15">
+      <div class="flex justify-between items-center mb-8">
+        <h3 class="font-headline font-bold text-xl uppercase tracking-tighter">
+          Live Feed <span class="text-primary ml-2 opacity-50">Today's Check-ins</span>
+        </h3>
+        {% if active_now > 0 %}
+        <span class="text-xs bg-secondary/10 text-secondary border border-secondary/20 px-3 py-1 rounded-full font-black animate-pulse uppercase tracking-widest">
+          {{ active_now }} Active
+        </span>
+        {% else %}
+        <span class="text-xs bg-outline-variant/20 text-on-surface-variant px-3 py-1 rounded-full font-black uppercase tracking-widest">Quiet</span>
+        {% endif %}
+      </div>
+
+      {% if todays_checkins %}
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {% for record in todays_checkins %}
+        <div class="relative pl-6 border-l-2 {% if not record.check_out %}border-primary-container/40{% else %}border-outline-variant/20{% endif %} py-3 group hover:bg-surface-container-low transition-colors rounded-r-xl pr-4">
+          <div class="absolute -left-[9px] top-4 w-4 h-4 rounded-full border-4 border-surface
+            {% if not record.check_out %}bg-primary-container shadow-[0_0_10px_rgba(212,251,0,0.4)]{% else %}bg-surface-container-highest{% endif %}"></div>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl overflow-hidden bg-surface-container-highest flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-300">
+              {% if record.member.photo %}
+              <img src="{{ record.member.photo.url }}" class="w-full h-full object-cover"/>
+              {% else %}
+              <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+              {% endif %}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-black tracking-tight uppercase truncate">{{ record.member.get_full_name }}</p>
+              <p class="text-[10px] {% if not record.check_out %}text-primary{% else %}text-on-surface-variant{% endif %} font-bold uppercase">
+                {{ record.get_activity_display }} · {{ record.check_in|date:"H:i" }}
+              </p>
+            </div>
+            {% if not record.check_out %}
+            <form method="post" action="{% url 'checkout' record.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="text-secondary hover:text-white transition-colors" title="Check out">
+                <span class="material-symbols-outlined text-sm">logout</span>
+              </button>
+            </form>
+            {% else %}
+            <span class="material-symbols-outlined text-on-surface-variant text-sm">verified</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-16">
+        <span class="material-symbols-outlined text-6xl text-outline mb-4 block">fitness_center</span>
+        <p class="text-on-surface-variant text-lg font-bold mb-2">No check-ins today</p>
+        <a href="{% url 'checkin' %}" class="inline-flex items-center gap-2 text-primary font-bold hover:underline">
+          <span class="material-symbols-outlined text-sm">add</span> Log first check-in
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

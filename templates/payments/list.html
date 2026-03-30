@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Payments{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+  <div>
+    <h1 class="text-4xl font-black font-headline tracking-tighter mb-2">Payment Ledger</h1>
+    <p class="text-on-surface-variant">All recorded payments and transactions</p>
+  </div>
+  <div class="flex items-center gap-4">
+    <div class="bg-surface-container-low p-4 rounded-2xl border-l-2 border-secondary/40">
+      <p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">This Month</p>
+      <p class="text-2xl font-black font-headline text-secondary">₹{{ monthly_total|floatformat:0 }}</p>
+    </div>
+    <a href="{% url 'payment_add' %}" class="flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold uppercase tracking-tighter hover:brightness-110 transition-all">
+      <span class="material-symbols-outlined">add</span> Record Payment
+    </a>
+  </div>
+</div>
+
+<!-- Filters -->
+<form method="get" class="bg-surface-container p-4 rounded-2xl mb-6 flex flex-wrap items-center gap-4">
+  <div class="relative">
+    <select name="status" onchange="this.form.submit()" class="bg-surface-container-highest border-0 text-xs font-bold uppercase tracking-widest text-on-surface rounded-xl pl-4 pr-10 py-3 appearance-none focus:ring-1 focus:ring-primary cursor-pointer">
+      <option value="">Status: All</option>
+      <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Paid</option>
+      <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+    </select>
+    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-on-surface-variant">expand_more</span>
+  </div>
+  {% if status_filter %}
+  <a href="{% url 'payment_list' %}" class="text-xs font-bold text-error/70 hover:text-error px-3 py-3 flex items-center gap-1">
+    <span class="material-symbols-outlined text-sm">close</span> Clear
+  </a>
+  {% endif %}
+</form>
+
+<!-- Payments Table -->
+<div class="overflow-x-auto">
+  <table class="w-full border-separate border-spacing-y-3">
+    <thead>
+      <tr class="text-left text-[10px] text-on-surface-variant uppercase tracking-[0.2em] font-black">
+        <th class="pb-2 pl-6">Member</th>
+        <th class="pb-2">Plan</th>
+        <th class="pb-2">Amount</th>
+        <th class="pb-2">Date</th>
+        <th class="pb-2">Method</th>
+        <th class="pb-2">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for payment in payments %}
+      <tr class="glass-row group">
+        <td class="py-4 pl-6 rounded-l-2xl">
+          <a href="{% url 'member_detail' payment.member.pk %}" class="flex items-center gap-3 hover:text-primary transition-colors">
+            <div class="w-9 h-9 rounded-xl bg-surface-container-highest flex items-center justify-center overflow-hidden">
+              {% if payment.member.photo %}
+              <img src="{{ payment.member.photo.url }}" class="w-full h-full object-cover"/>
+              {% else %}
+              <span class="material-symbols-outlined text-sm text-on-surface-variant">person</span>
+              {% endif %}
+            </div>
+            <div>
+              <p class="font-bold text-sm">{{ payment.member.get_full_name }}</p>
+              <p class="text-[10px] text-on-surface-variant">#{{ payment.member.member_id }}</p>
+            </div>
+          </a>
+        </td>
+        <td class="py-4 text-sm text-on-surface-variant">{{ payment.plan.name|default:"—" }}</td>
+        <td class="py-4">
+          <span class="font-black text-lg font-headline text-on-surface">₹{{ payment.amount|floatformat:0 }}</span>
+        </td>
+        <td class="py-4 font-mono text-sm text-outline">{{ payment.payment_date|date:"M d, Y" }}</td>
+        <td class="py-4 text-sm text-on-surface-variant">{{ payment.get_payment_method_display }}</td>
+        <td class="py-4 rounded-r-2xl">
+          {% if payment.status == 'paid' %}
+          <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">Paid</span>
+          {% elif payment.status == 'failed' %}
+          <span class="px-3 py-1 bg-error/10 text-error text-[10px] font-black uppercase tracking-widest rounded-full border border-error/20">Failed</span>
+          {% elif payment.status == 'refunded' %}
+          <span class="px-3 py-1 bg-outline-variant/20 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-full">Refunded</span>
+          {% else %}
+          <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] font-black uppercase tracking-widest rounded-full border border-tertiary/20">Pending</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center py-20">
+          <span class="material-symbols-outlined text-6xl text-outline mb-4 block">receipt_long</span>
+          <p class="text-on-surface-variant text-lg font-bold mb-4">No payments recorded yet</p>
+          <a href="{% url 'payment_add' %}" class="inline-flex items-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-bold">
+            <span class="material-symbols-outlined">add</span> Record First Payment
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if payments.has_other_pages %}
+<div class="mt-8 flex items-center justify-between">
+  <div class="text-[10px] text-on-surface-variant uppercase tracking-widest font-black">
+    Showing <span class="text-on-surface">{{ payments.start_index }} - {{ payments.end_index }}</span> of {{ payments.paginator.count }}
+  </div>
+  <div class="flex gap-2">
+    {% if payments.has_previous %}
+    <a href="?page={{ payments.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-primary">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </a>
+    {% endif %}
+    {% if payments.has_next %}
+    <a href="?page={{ payments.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-primary">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

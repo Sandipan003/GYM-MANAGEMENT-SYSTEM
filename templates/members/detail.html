@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}{{ member.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+  <a href="{% url 'member_list' %}" class="flex items-center gap-2 text-on-surface-variant hover:text-primary text-sm font-bold uppercase tracking-widest mb-8 transition-colors w-fit">
+    <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Members
+  </a>
+
+  <!-- Profile Header -->
+  <div class="bg-surface-container rounded-[2rem] p-8 mb-6 border border-outline-variant/10 relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-64 h-64 opacity-5">
+      <div class="kinetic-gradient w-full h-full rounded-full blur-3xl"></div>
+    </div>
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-8">
+      <div class="w-24 h-24 rounded-2xl overflow-hidden border-2 border-primary-container bg-surface-container-highest flex items-center justify-center flex-shrink-0">
+        {% if member.photo %}
+        <img src="{{ member.photo.url }}" alt="{{ member.get_full_name }}" class="w-full h-full object-cover"/>
+        {% else %}
+        <span class="material-symbols-outlined text-on-surface-variant text-5xl">person</span>
+        {% endif %}
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-2">
+          <h1 class="text-4xl font-black font-headline tracking-tighter">{{ member.get_full_name }}</h1>
+          {% if member.status == 'active' %}
+          <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">Active</span>
+          {% elif member.status == 'expired' %}
+          <span class="px-3 py-1 bg-error/10 text-error text-[10px] font-black uppercase tracking-widest rounded-full border border-error/20">Expired</span>
+          {% elif member.status == 'pending' %}
+          <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] font-black uppercase tracking-widest rounded-full border border-tertiary/20">Pending</span>
+          {% else %}
+          <span class="px-3 py-1 bg-outline-variant/20 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-full">Inactive</span>
+          {% endif %}
+        </div>
+        <p class="text-on-surface-variant font-mono text-sm mb-4">Member ID: #{{ member.member_id }}</p>
+        <div class="flex flex-wrap gap-6 text-sm">
+          <div class="flex items-center gap-2 text-on-surface-variant">
+            <span class="material-symbols-outlined text-lg text-outline">mail</span>
+            {{ member.email }}
+          </div>
+          {% if member.phone %}
+          <div class="flex items-center gap-2 text-on-surface-variant">
+            <span class="material-symbols-outlined text-lg text-outline">phone</span>
+            {{ member.phone }}
+          </div>
+          {% endif %}
+          <div class="flex items-center gap-2 text-on-surface-variant">
+            <span class="material-symbols-outlined text-lg text-outline">calendar_today</span>
+            Joined {{ member.join_date|date:"M d, Y" }}
+          </div>
+          {% if member.membership_expiry %}
+          <div class="flex items-center gap-2 text-on-surface-variant">
+            <span class="material-symbols-outlined text-lg text-outline">event_available</span>
+            Expires {{ member.membership_expiry|date:"M d, Y" }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="flex gap-3 flex-shrink-0">
+        <a href="{% url 'member_edit' member.pk %}" class="flex items-center gap-2 px-5 py-3 bg-surface-container-highest hover:bg-outline-variant/20 rounded-xl font-bold text-sm uppercase tracking-widest transition-all">
+          <span class="material-symbols-outlined">edit</span> Edit
+        </a>
+        <a href="{% url 'payment_add' %}?member={{ member.pk }}" class="flex items-center gap-2 px-5 py-3 bg-primary-container text-on-primary-container rounded-xl font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all">
+          <span class="material-symbols-outlined">payments</span> Pay
+        </a>
+      </div>
+    </div>
+    {% if member.plan %}
+    <div class="mt-6 pt-6 border-t border-outline-variant/10 flex items-center gap-4">
+      <div class="px-4 py-2 bg-surface-container-highest rounded-xl flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary">card_membership</span>
+        <span class="text-sm font-bold">{{ member.plan.name }}</span>
+        <span class="text-xs text-on-surface-variant">·</span>
+        <span class="text-sm text-on-surface-variant">₹{{ member.plan.price }}/mo</span>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Attendance History -->
+    <div class="bg-surface-container rounded-2xl p-6 border border-outline-variant/10">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="font-headline font-bold uppercase tracking-tight">Attendance History</h2>
+        <span class="text-xs text-on-surface-variant">Last 10 visits</span>
+      </div>
+      {% if attendance %}
+      <div class="space-y-3">
+        {% for record in attendance %}
+        <div class="flex items-center gap-4 p-3 bg-surface-container-highest/40 rounded-xl">
+          <span class="material-symbols-outlined {% if record.check_out %}text-outline{% else %}text-secondary{% endif %} text-lg">
+            {% if record.check_out %}event_available{% else %}login{% endif %}
+          </span>
+          <div class="flex-1">
+            <p class="text-sm font-bold">{{ record.get_activity_display }}</p>
+            <p class="text-xs text-on-surface-variant">{{ record.check_in|date:"M d, H:i" }} · {{ record.get_zone_display }}</p>
+          </div>
+          {% if record.check_out %}
+          <span class="text-xs text-on-surface-variant">{{ record.duration_minutes }}m</span>
+          {% else %}
+          <span class="text-xs text-secondary font-bold">Active</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-on-surface-variant text-sm text-center py-8">No attendance records yet.</p>
+      {% endif %}
+    </div>
+
+    <!-- Payment History -->
+    <div class="bg-surface-container rounded-2xl p-6 border border-outline-variant/10">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="font-headline font-bold uppercase tracking-tight">Payment History</h2>
+        <a href="{% url 'payment_add' %}?member={{ member.pk }}" class="text-xs text-primary font-bold hover:underline underline-offset-4">+ Add</a>
+      </div>
+      {% if payments %}
+      <div class="space-y-3">
+        {% for payment in payments %}
+        <div class="flex items-center gap-4 p-3 bg-surface-container-highest/40 rounded-xl">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center
+            {% if payment.status == 'paid' %}bg-primary/10{% elif payment.status == 'failed' %}bg-error/10{% else %}bg-tertiary/10{% endif %}">
+            <span class="material-symbols-outlined text-lg
+              {% if payment.status == 'paid' %}text-primary{% elif payment.status == 'failed' %}text-error{% else %}text-tertiary{% endif %}">
+              {% if payment.status == 'paid' %}check_circle{% elif payment.status == 'failed' %}cancel{% else %}pending{% endif %}
+            </span>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-bold">₹{{ payment.amount }}</p>
+            <p class="text-xs text-on-surface-variant">{{ payment.payment_date|date:"M d, Y" }} · {{ payment.get_payment_method_display }}</p>
+          </div>
+          <span class="text-xs font-bold {% if payment.status == 'paid' %}text-primary{% elif payment.status == 'failed' %}text-error{% else %}text-tertiary{% endif %} uppercase">
+            {{ payment.get_status_display }}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-on-surface-variant text-sm text-center py-8">No payments recorded yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="mt-6 border border-error/20 rounded-2xl p-6">
+    <h3 class="text-sm font-black uppercase tracking-widest text-error/70 mb-4">Danger Zone</h3>
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="font-bold">Deactivate Member</p>
+        <p class="text-sm text-on-surface-variant">This will set member status to Inactive. All data is preserved.</p>
+      </div>
+      <a href="{% url 'member_delete' member.pk %}" class="px-5 py-2 border border-error/30 text-error/70 hover:bg-error hover:text-white rounded-xl text-sm font-bold uppercase tracking-widest transition-all">
+        Deactivate
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

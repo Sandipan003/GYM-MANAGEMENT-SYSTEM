@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Header & Stats Row -->
+<header class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+  <div>
+    <h1 class="text-4xl font-black font-headline tracking-tighter text-on-surface uppercase mb-2">System Overview</h1>
+    <p class="text-on-surface-variant font-medium">{{ today|date:"l, F j" }} — <span class="text-secondary">Facility Live</span></p>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 flex-1 md:max-w-3xl">
+    <!-- Stat 1 -->
+    <div class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-1 h-full bg-primary-container"></div>
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Active Members</p>
+      <div class="flex items-baseline gap-2">
+        <span class="text-4xl font-black font-headline text-on-surface">{{ total_members }}</span>
+        <span class="text-primary text-xs font-bold">Live</span>
+      </div>
+    </div>
+    <!-- Stat 2 -->
+    <div class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Monthly Revenue</p>
+      <div class="flex items-baseline gap-2">
+        <span class="text-4xl font-black font-headline text-on-surface">₹{{ monthly_revenue|floatformat:0 }}</span>
+        <span class="text-secondary text-xs font-bold">This Month</span>
+      </div>
+    </div>
+    <!-- Stat 3 -->
+    <div class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+      <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Active Check-ins</p>
+      <div class="flex items-baseline gap-2">
+        <span class="text-4xl font-black font-headline text-on-surface">{{ active_checkins }}</span>
+        <span class="text-tertiary text-xs font-bold">Now</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Bento Grid -->
+<div class="grid grid-cols-12 gap-6">
+  <!-- Revenue Chart -->
+  <section class="col-span-12 xl:col-span-8 bg-surface-container rounded-[2rem] p-8 border border-outline-variant/10">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-xl font-bold font-headline uppercase tracking-tight mb-1">Revenue Velocity</h2>
+        <p class="text-sm text-on-surface-variant">Last 6 months performance data</p>
+      </div>
+      <a href="{% url 'payment_list' %}" class="px-4 py-1.5 rounded-full text-xs font-bold bg-surface-container-highest text-on-surface border border-outline-variant/20 hover:border-primary-container/40 transition-colors">
+        View All
+      </a>
+    </div>
+    <div class="relative h-[280px] w-full flex items-end justify-around px-4 gap-4">
+      <!-- Grid lines -->
+      <div class="absolute inset-0 flex flex-col justify-between opacity-5 pb-8">
+        <div class="w-full h-px bg-white"></div>
+        <div class="w-full h-px bg-white"></div>
+        <div class="w-full h-px bg-white"></div>
+        <div class="w-full h-px bg-white"></div>
+      </div>
+      {% for bar in chart_bars %}
+      <div class="relative z-10 flex flex-col items-center gap-2 flex-1 group">
+        <div class="text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity mb-1">
+          ₹{{ bar.value|floatformat:0 }}
+        </div>
+        <div class="w-full rounded-t-lg transition-all duration-700 {% if forloop.last %}bg-primary-container shadow-[0_0_15px_rgba(212,251,0,0.5)]{% else %}bg-outline-variant/30 hover:bg-primary-container/60{% endif %}"
+             style="height: {{ bar.height }}%"></div>
+        <span class="text-[10px] font-bold {% if forloop.last %}text-on-surface{% else %}text-on-surface-variant{% endif %} uppercase tracking-widest">{{ bar.label }}</span>
+      </div>
+      {% empty %}
+      <p class="text-on-surface-variant text-sm col-span-6 text-center">No revenue data yet. <a href="{% url 'payment_add' %}" class="text-primary underline">Record a payment</a></p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Control Hub -->
+  <section class="col-span-12 xl:col-span-4 glass-card rounded-[2rem] p-8 border border-outline-variant/20 flex flex-col">
+    <div class="mb-8">
+      <h2 class="text-xl font-bold font-headline uppercase tracking-tight mb-1">Control Hub</h2>
+      <p class="text-sm text-on-surface-variant">Rapid management tools</p>
+    </div>
+    <div class="space-y-4 flex-1">
+      <a href="{% url 'member_add' %}" class="w-full group flex items-center justify-between p-4 bg-surface-container-highest/40 hover:bg-primary-container rounded-2xl transition-all duration-300">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center group-hover:bg-on-primary-container/20 transition-colors">
+            <span class="material-symbols-outlined text-primary group-hover:text-on-primary-container">person_add</span>
+          </div>
+          <span class="font-bold uppercase tracking-tight group-hover:text-on-primary-container">Add New Member</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-primary-container">chevron_right</span>
+      </a>
+      <a href="{% url 'checkin' %}" class="w-full group flex items-center justify-between p-4 bg-surface-container-highest/40 hover:bg-secondary rounded-2xl transition-all duration-300">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center group-hover:bg-on-secondary/20 transition-colors">
+            <span class="material-symbols-outlined text-secondary group-hover:text-on-secondary-container">how_to_reg</span>
+          </div>
+          <span class="font-bold uppercase tracking-tight group-hover:text-on-secondary-container">Log Attendance</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-secondary-container">chevron_right</span>
+      </a>
+      <a href="{% url 'payment_add' %}" class="w-full group flex items-center justify-between p-4 bg-surface-container-highest/40 hover:bg-white hover:text-black rounded-2xl transition-all duration-300">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center group-hover:bg-black/10 transition-colors">
+            <span class="material-symbols-outlined text-white group-hover:text-black">payments</span>
+          </div>
+          <span class="font-bold uppercase tracking-tight">Record Payment</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-black">chevron_right</span>
+      </a>
+    </div>
+    <div class="mt-8 pt-8 border-t border-outline-variant/20">
+      <div class="flex items-center justify-between p-4 bg-surface-container rounded-2xl border border-outline-variant/10">
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+          <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">System: Online</span>
+        </div>
+        <span class="text-[10px] font-mono text-outline">Django 4.2</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Live Activity -->
+  <section class="col-span-12 bg-surface-container-low rounded-[2rem] p-8">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-xl font-bold font-headline uppercase tracking-tight">Recent Live Activity</h2>
+      <a href="{% url 'attendance_reports' %}" class="text-xs font-bold text-primary hover:underline underline-offset-4 tracking-widest uppercase">View Full History</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-separate border-spacing-y-4">
+        <thead>
+          <tr class="text-on-surface-variant text-[10px] uppercase tracking-[0.2em] font-bold">
+            <th class="px-6 pb-2">Member</th>
+            <th class="px-6 pb-2">Activity</th>
+            <th class="px-6 pb-2">Time</th>
+            <th class="px-6 pb-2">Status</th>
+            <th class="px-6 pb-2 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="text-sm">
+          {% for record in recent_activity %}
+          <tr class="glass-row group">
+            <td class="px-6 py-4 rounded-l-2xl">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30 flex items-center justify-center">
+                  {% if record.member.photo %}
+                  <img src="{{ record.member.photo.url }}" alt="{{ record.member.get_full_name }}" class="w-full h-full object-cover"/>
+                  {% else %}
+                  <span class="material-symbols-outlined text-on-surface-variant">person</span>
+                  {% endif %}
+                </div>
+                <div>
+                  <p class="font-bold text-on-surface">{{ record.member.get_full_name }}</p>
+                  <p class="text-[10px] text-on-surface-variant font-medium">{{ record.member.plan.name|default:"No Plan" }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2">
+                {% if record.check_out %}
+                <span class="material-symbols-outlined text-error text-lg">logout</span>
+                <span class="font-medium">Checked Out — {{ record.get_zone_display }}</span>
+                {% else %}
+                <span class="material-symbols-outlined text-secondary text-lg">login</span>
+                <span class="font-medium">Checked In — {{ record.get_zone_display }}</span>
+                {% endif %}
+              </div>
+            </td>
+            <td class="px-6 py-4 font-mono text-outline">{{ record.check_in|date:"H:i" }}</td>
+            <td class="px-6 py-4">
+              {% if record.check_out %}
+              <span class="px-3 py-1 rounded-full bg-outline-variant/20 text-on-surface-variant text-[10px] font-bold uppercase tracking-widest">Completed</span>
+              {% else %}
+              <span class="px-3 py-1 rounded-full bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-widest">Active</span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 rounded-r-2xl text-right">
+              <a href="{% url 'member_detail' record.member.pk %}" class="w-8 h-8 rounded-full bg-surface-container-highest hover:bg-primary-container hover:text-on-primary-container transition-all inline-flex items-center justify-center">
+                <span class="material-symbols-outlined text-sm">visibility</span>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center py-12 text-on-surface-variant">
+              <span class="material-symbols-outlined text-4xl mb-3 block text-outline">fitness_center</span>
+              No activity yet today. <a href="{% url 'checkin' %}" class="text-primary underline">Log first check-in</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}
