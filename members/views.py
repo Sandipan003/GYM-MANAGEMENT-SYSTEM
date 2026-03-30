@@ -149,9 +149,13 @@ def member_dashboard(request):
 
     # 3. Weekly Pulse (Last 7 Days)
     weekly_pulse = []
+    import datetime
     for i in range(6, -1, -1):
         day = (now - timedelta(days=i)).date()
-        has_attended = Attendance.objects.filter(member=member, check_in__date=day).exists()
+        # Get range for the specific day (Bypass MySQL __date issues)
+        start = timezone.make_aware(datetime.datetime.combine(day, datetime.time.min))
+        end = timezone.make_aware(datetime.datetime.combine(day, datetime.time.max))
+        has_attended = Attendance.objects.filter(member=member, check_in__range=(start, end)).exists()
         weekly_pulse.append(has_attended)
 
     # 4. Calories Burned (Est. 7.5 kcal/min)
@@ -177,6 +181,9 @@ def member_dashboard(request):
     svg_path = f"M {points[0]} " + " ".join([f"L {p}" for p in points[1:]])
     svg_fill = svg_path + " V 200 H 0 Z"
 
+    # 5. Active Session Tracking
+    active_session = Attendance.objects.filter(member=member, check_out__isnull=True).first()
+
     context = {
         'member': member,
         'recent_attendance': recent_attendance,
@@ -188,6 +195,7 @@ def member_dashboard(request):
         'svg_path': svg_path,
         'svg_fill': svg_fill,
         'last_point_y': points[-1].split(',')[1],
+        'active_session': active_session,
         'page': 'member_dashboard',
     }
     return render(request, 'members/member_dashboard.html', context)
@@ -213,3 +221,33 @@ def member_attendance_history(request):
         'page': 'performance', # Highlight performance in sidebar
     }
     return render(request, 'members/attendance_history.html', context)
+
+
+@login_required
+def toggle_attendance(request):
+    """Allow member to check-in or check-out themselves"""
+    if not hasattr(request.user, 'member_profile'):
+        messages.error(request, 'No member profile found.')
+        return redirect('home')
+    
+    member = request.user.member_profile
+    from attendance.models import Attendance
+    
+    active_session = Attendance.objects.filter(member=member, check_out__isnull=True).first()
+    
+    if request.method == 'POST':
+        if active_session:
+            active_session.check_out = timezone.now()
+            active_session.save()
+            messages.success(request, 'Great session! You have been checked out.')
+        else:
+            # Create new check-in
+            Attendance.objects.create(
+                member=member,
+                check_in=timezone.now(),
+                zone='main_hall',
+                activity='general'
+            )
+            messages.success(request, 'Welcome to Kinetic Pulse! Your session has started.')
+            
+    return redirect('member_dashboard')

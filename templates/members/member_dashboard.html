@@ -104,7 +104,13 @@
                 <h1 class="text-5xl font-headline font-black tracking-tighter mb-2">PERFORMANCE <span class="text-primary-container uppercase">Velocity</span></h1>
                 <p class="text-on-surface-variant font-body">Tracking your kinetic momentum since {{ member.join_date|date:"F Y" }}.</p>
             </div>
-            <div class="flex gap-4">
+            <div class="flex items-center gap-4">
+                {% if active_session %}
+                    <div class="flex items-center gap-2 px-4 py-2 bg-secondary/10 border border-secondary/20 rounded-full animate-pulse">
+                        <span class="w-2 h-2 bg-secondary rounded-full"></span>
+                        <span class="text-[10px] font-black text-secondary uppercase tracking-widest">Active Now</span>
+                    </div>
+                {% endif %}
                 <button class="bg-surface-container-highest px-6 py-3 rounded-xl text-xs font-headline font-bold uppercase tracking-widest border border-outline-variant/20">Report</button>
                 <a href="{% url 'home' %}" class="kinetic-gradient text-on-primary px-6 py-3 rounded-xl text-xs font-headline font-bold uppercase tracking-widest">Facility Live</a>
             </div>
@@ -200,9 +206,27 @@
 
             <!-- Quick Actions -->
             <section class="col-span-12 lg:col-span-5 flex flex-col gap-4">
-                <div class="bg-primary-container p-8 rounded-3xl text-on-primary relative overflow-hidden group h-full">
-                    <h3 class="text-3xl font-headline font-black italic tracking-tighter relative z-10 leading-none mb-4 uppercase">Level Up<br/>Your Routine</h3>
-                    <button class="bg-black text-white px-8 py-3 rounded-xl font-headline font-black text-[10px] uppercase tracking-widest relative z-10 hover:scale-105 transition-all">Personal Training</button>
+                <div class="bg-primary-container p-8 rounded-3xl text-on-primary relative overflow-hidden group h-full flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-3xl font-headline font-black italic tracking-tighter relative z-10 leading-none mb-4 uppercase">
+                            {% if active_session %}Currently in Gym{% else %}Gym Access{% endif %}
+                        </h3>
+                        <p class="text-xs font-bold uppercase tracking-widest mb-6 opacity-80 relative z-10">
+                            {% if active_session %}Entered at {{ active_session.check_in|date:"H:i" }}{% else %}Mark your entry to start your workout.{% endif %}
+                        </p>
+                    </div>
+                    <form method="post" action="{% url 'toggle_attendance' %}" class="relative z-10">
+                        {% csrf_token %}
+                        {% if active_session %}
+                            <button type="submit" class="w-full bg-black text-white px-8 py-4 rounded-xl font-headline font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center justify-center gap-3">
+                                <span class="material-symbols-outlined">logout</span> I am leaving gym
+                            </button>
+                        {% else %}
+                            <button type="submit" class="w-full bg-black text-white px-8 py-4 rounded-xl font-headline font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center justify-center gap-3">
+                                <span class="material-symbols-outlined">how_to_reg</span> I am entered in gym
+                            </button>
+                        {% endif %}
+                    </form>
                     <span class="material-symbols-outlined absolute -bottom-6 -right-6 text-[160px] opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700">trending_up</span>
                 </div>
             </section>

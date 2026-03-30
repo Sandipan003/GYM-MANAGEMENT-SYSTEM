@@ -1,0 +1,39 @@
+<div class="relative pl-6 border-l-2 {% if not record.check_out %}border-primary-container/40{% else %}border-outline-variant/20{% endif %} py-4 group hover:bg-surface-container-low transition-all duration-300 rounded-r-2xl pr-4 border border-outline-variant/5 bg-surface-container-low/30">
+  <div class="absolute -left-[9px] top-5 w-4 h-4 rounded-full border-4 border-surface
+    {% if not record.check_out %}bg-primary-container shadow-[0_0_12px_rgba(212,251,0,0.5)]{% else %}bg-surface-container-highest{% endif %}"></div>
+  
+  <div class="flex items-center gap-4">
+    <div class="w-12 h-12 rounded-xl overflow-hidden bg-surface-container-highest flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500">
+      {% if record.member.photo %}
+      <img src="{{ record.member.photo.url }}" class="w-full h-full object-cover"/>
+      {% else %}
+      <span class="material-symbols-outlined text-on-surface-variant">person</span>
+      {% endif %}
+    </div>
+    
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-black tracking-tight uppercase truncate text-on-surface">{{ record.member.get_full_name }}</p>
+      <div class="flex flex-col gap-0.5">
+          <p class="text-[10px] {% if not record.check_out %}text-primary-container{% else %}text-on-surface-variant{% endif %} font-black uppercase tracking-widest">
+            {{ record.get_activity_display }}
+          </p>
+          <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-tighter">
+            In: {{ record.check_in|date:"H:i" }} {% if record.check_out %}· Out: {{ record.check_out|date:"H:i" }}{% endif %}
+          </p>
+      </div>
+    </div>
+
+    {% if not record.check_out %}
+    <form method="post" action="{% url 'checkout' record.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="w-8 h-8 rounded-lg flex items-center justify-center bg-secondary/10 text-secondary hover:bg-secondary hover:text-on-secondary transition-all" title="End Session">
+        <span class="material-symbols-outlined text-sm">logout</span>
+      </button>
+    </form>
+    {% else %}
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-outline-variant/10 text-on-surface-variant">
+      <span class="material-symbols-outlined text-sm">verified</span>
+    </div>
+    {% endif %}
+  </div>
+</div>

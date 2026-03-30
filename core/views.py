@@ -64,8 +64,13 @@ def dashboard(request):
         status='paid'
     ).aggregate(total=Sum('amount'))['total'] or 0
 
+    # Get range for today (Bypass MySQL __date issues)
+    import datetime
+    start = timezone.make_aware(datetime.datetime.combine(today, datetime.time.min))
+    end = timezone.make_aware(datetime.datetime.combine(today, datetime.time.max))
+
     active_checkins = Attendance.objects.filter(
-        check_in__date=today,
+        check_in__range=(start, end),
         check_out__isnull=True
     ).count()
 
