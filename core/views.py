@@ -31,21 +31,35 @@ def dashboard(request):
     # Recent activity (last 10 attendance entries)
     recent_activity = Attendance.objects.select_related('member', 'member__plan').order_by('-check_in')[:10]
 
-    # Revenue chart — last 6 months
+    # Revenue chart — last 6 months (Robust calculation)
     revenue_data = []
     labels = []
-    for i in range(5, -1, -1):
-        d = today - timedelta(days=i * 30)
-        month_label = d.strftime('%b')
-        month_rev = Payment.objects.filter(
-            payment_date__year=d.year,
-            payment_date__month=d.month,
+    
+    # Start from current month and go back 5 months
+    curr_date = today.replace(day=1)
+    temp_months = []
+    for _ in range(6):
+        rev = Payment.objects.filter(
+            payment_date__year=curr_date.year,
+            payment_date__month=curr_date.month,
             status='paid'
         ).aggregate(total=Sum('amount'))['total'] or 0
-        revenue_data.append(float(month_rev))
-        labels.append(month_label)
+        
+        temp_months.append({
+            'label': curr_date.strftime('%b').upper(),
+            'value': float(rev)
+        })
+        
+        # Move to previous month: go to 1st of current month, subtract 1 day
+        last_month = (curr_date - timedelta(days=1)).replace(day=1)
+        curr_date = last_month
 
-    max_rev = max(revenue_data) if revenue_data else 1
+    # Reverse to show Oct -> Mar
+    temp_months.reverse()
+    revenue_data = [m['value'] for m in temp_months]
+    labels = [m['label'] for m in temp_months]
+
+    max_rev = max(revenue_data) if any(revenue_data) else 1
 
     # Build bar chart heights as percentages
     chart_bars = []

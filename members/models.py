@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from plans.models import MembershipPlan
 
 
@@ -13,7 +14,8 @@ class Member(models.Model):
         ('pending', 'Pending'),
         ('inactive', 'Inactive'),
     ]
-
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='member_profile')
     member_id = models.CharField(max_length=20, unique=True, blank=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

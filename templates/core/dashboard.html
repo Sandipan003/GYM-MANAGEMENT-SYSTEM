@@ -61,13 +61,23 @@
         <div class="w-full h-px bg-white"></div>
       </div>
       {% for bar in chart_bars %}
-      <div class="relative z-10 flex flex-col items-center gap-2 flex-1 group">
-        <div class="text-[10px] font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity mb-1">
+      <div class="relative z-10 flex flex-col items-center flex-1 h-full group min-w-0">
+        <!-- Value Tooltip -->
+        <div class="text-[10px] font-black text-primary opacity-0 group-hover:opacity-100 transition-all mb-2 transform -translate-y-1 group-hover:translate-y-0">
           ₹{{ bar.value|floatformat:0 }}
         </div>
-        <div class="w-full rounded-t-lg transition-all duration-700 {% if forloop.last %}bg-primary-container shadow-[0_0_15px_rgba(212,251,0,0.5)]{% else %}bg-outline-variant/30 hover:bg-primary-container/60{% endif %}"
-             style="height: {{ bar.height }}%"></div>
-        <span class="text-[10px] font-bold {% if forloop.last %}text-on-surface{% else %}text-on-surface-variant{% endif %} uppercase tracking-widest">{{ bar.label }}</span>
+        
+        <!-- Bar Container -->
+        <div class="relative flex-1 w-full flex flex-col justify-end px-1 sm:px-2">
+          <div class="w-full rounded-t-lg transition-all duration-1000 ease-out 
+            {% if forloop.last %}bg-primary-container shadow-[0_0_25px_rgba(212,251,0,0.4)]
+            {% else %}bg-outline-variant/20 hover:bg-white/10{% endif %}"
+            style="height: {{ bar.height }}%">
+          </div>
+        </div>
+        
+        <!-- Month Label -->
+        <span class="mt-4 text-[10px] font-black {% if forloop.last %}text-on-surface{% else %}text-on-surface-variant{% endif %} uppercase tracking-widest">{{ bar.label }}</span>
       </div>
       {% empty %}
       <p class="text-on-surface-variant text-sm col-span-6 text-center">No revenue data yet. <a href="{% url 'payment_add' %}" class="text-primary underline">Record a payment</a></p>
