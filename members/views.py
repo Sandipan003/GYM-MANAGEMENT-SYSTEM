@@ -110,3 +110,27 @@ def member_delete(request, pk):
         messages.success(request, f'Member {name} has been deactivated.')
         return redirect('member_list')
     return render(request, 'members/confirm_delete.html', {'member': member, 'page': 'members'})
+
+
+@login_required
+def member_dashboard(request):
+    """Personal dashboard for gym members"""
+    # Check if the user is a member
+    if not hasattr(request.user, 'member_profile'):
+        if request.user.is_staff:
+            return redirect('dashboard')
+        messages.error(request, 'No member profile found for this user.')
+        return redirect('home')
+
+    member = request.user.member_profile
+    from attendance.models import Attendance
+    recent_attendance = Attendance.objects.filter(member=member).order_by('-check_in')[:5]
+    attendance_count = Attendance.objects.filter(member=member).count()
+
+    context = {
+        'member': member,
+        'recent_attendance': recent_attendance,
+        'attendance_count': attendance_count,
+        'page': 'member_dashboard',
+    }
+    return render(request, 'members/member_dashboard.html', context)

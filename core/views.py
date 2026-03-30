@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db.models import Sum, Count
@@ -10,8 +10,49 @@ from payments.models import Payment
 from attendance.models import Attendance
 
 
+def home(request):
+    """Public landing page with live facility stats"""
+    today = timezone.now().date()
+    
+    # Live activity (only check-ins without check-outs)
+    live_activity = Attendance.objects.filter(
+        check_out__isnull=True
+    ).select_related('member')[:3]
+    
+    # Calculate occupancy (simulated based on active check-ins vs capacity of 50)
+    active_count = Attendance.objects.filter(check_out__isnull=True).count()
+    occupancy_percent = min(int((active_count / 50) * 100), 100)
+    
+    context = {
+        'live_activity': live_activity,
+        'occupancy_percent': occupancy_percent,
+        'today': today,
+    }
+    return render(request, 'core/home.html', context)
+
+
+@login_required
+def login_success(request):
+    """Redirect users to appropriate dashboard based on role"""
+    if request.user.is_staff:
+        return redirect('dashboard')
+    else:
+        # Check if user has an associated member profile
+        if hasattr(request.user, 'member_profile'):
+            return redirect('member_dashboard')
+        else:
+            # If logged in but no member profile, just go home or admin
+            return redirect('home')
+
+
 @login_required
 def dashboard(request):
+    """Staff Management Dashboard"""
+    if not request.user.is_staff:
+        return redirect('member_dashboard')
+        
+    today = timezone.now().date()
+    # ... rest of existing dashboard logic ...
     today = timezone.now().date()
     now = timezone.now()
     month_start = today.replace(day=1)

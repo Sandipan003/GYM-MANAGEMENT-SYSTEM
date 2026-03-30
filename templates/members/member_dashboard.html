@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>KINETICA | Member Performance Panel</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f5ffc5",
+                        "primary-container": "#d4fb00",
+                        "on-primary": "#556600",
+                        "secondary": "#00eefc",
+                        "background": "#0e0e0e",
+                        "surface": "#0e0e0e",
+                        "surface-container": "#1a1a1a",
+                        "surface-container-low": "#131313",
+                        "surface-container-high": "#20201f",
+                        "surface-container-highest": "#262626",
+                        "on-surface": "#ffffff",
+                        "on-surface-variant": "#adaaaa",
+                        "outline-variant": "#484847",
+                        "error": "#ff7351",
+                    },
+                    fontFamily: {
+                        "headline": ["Lexend"],
+                        "body": ["Inter"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-card { background: rgba(38, 38, 38, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .kinetic-gradient { background: linear-gradient(135deg, #d4fb00 0%, #00eefc 100%); }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+    <!-- Top Navigation Rail -->
+    <nav class="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-outline-variant/10 flex justify-between items-center px-8 h-20">
+        <div class="text-2xl font-black text-primary-container italic tracking-tighter uppercase font-headline">KINETICA</div>
+        <div class="hidden md:flex gap-8">
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Workouts</a>
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Schedule</a>
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Nutrition</a>
+        </div>
+        <div class="flex items-center gap-6">
+            <button class="text-on-surface-variant hover:text-white transition-all"><span class="material-symbols-outlined">notifications</span></button>
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+                {% if member.photo %}
+                    <img src="{{ member.photo.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full bg-surface-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">person</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Side Navigation -->
+    <aside class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-64 z-40 bg-surface/80 backdrop-blur-lg flex flex-col py-6 px-4 gap-2 font-headline font-medium border-r border-outline-variant/10">
+        <div class="mb-8 px-4">
+            <h3 class="text-primary-container font-black text-lg uppercase tracking-tight">{{ member.get_full_name }}</h3>
+            <p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold">{{ member.plan.name|default:"Elite Member" }}</p>
+        </div>
+        <nav class="flex-grow space-y-1 text-xs uppercase tracking-widest font-bold">
+            <a class="flex items-center gap-3 px-4 py-3 bg-surface-container-highest text-primary-container border-l-4 border-primary-container rounded-r-xl" href="#">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">grid_view</span>Dashboard
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="#">
+                <span class="material-symbols-outlined">insights</span>Performance
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="#">
+                <span class="material-symbols-outlined">event_repeat</span>Classes
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="#">
+                <span class="material-symbols-outlined">card_membership</span>Membership
+            </a>
+        </nav>
+        <button class="mt-4 kinetic-gradient text-on-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest hover:scale-95 transition-all">Book Session</button>
+        <div class="mt-auto space-y-1 text-xs uppercase tracking-widest font-bold">
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white transition-colors" href="#"><span class="material-symbols-outlined">help</span>Support</a>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-error transition-colors">
+                    <span class="material-symbols-outlined">logout</span>Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 mt-20 p-8 min-h-screen">
+        <header class="mb-10 flex justify-between items-end">
+            <div>
+                <h1 class="text-5xl font-headline font-black tracking-tighter mb-2">PERFORMANCE <span class="text-primary-container uppercase">Velocity</span></h1>
+                <p class="text-on-surface-variant font-body">Tracking your kinetic momentum since {{ member.join_date|date:"F Y" }}.</p>
+            </div>
+            <div class="flex gap-4">
+                <button class="bg-surface-container-highest px-6 py-3 rounded-xl text-xs font-headline font-bold uppercase tracking-widest border border-outline-variant/20">Report</button>
+                <a href="{% url 'home' %}" class="kinetic-gradient text-on-primary px-6 py-3 rounded-xl text-xs font-headline font-bold uppercase tracking-widest">Facility Live</a>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Large Chart Section -->
+            <section class="col-span-12 lg:col-span-8 bg-surface-container rounded-3xl p-8 relative overflow-hidden group border border-outline-variant/10">
+                <div class="relative z-10">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-xl font-headline font-black uppercase tracking-tight italic">Intensity Trends</h2>
+                        <span class="px-3 py-1 bg-primary-container/10 text-primary-container rounded-full text-[10px] font-black uppercase tracking-widest">Last 6 Months</span>
+                    </div>
+                    <div class="h-64 w-full flex items-end justify-between px-4">
+                        <svg class="w-full h-full overflow-visible" viewbox="0 0 800 200">
+                            <lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                                <stop offset="0%" stop-color="#d4fb00" stop-opacity="0.5"></stop>
+                                <stop offset="100%" stop-color="#d4fb00" stop-opacity="0"></stop>
+                            </lineargradient>
+                            <path d="M0,150 Q100,120 200,160 T400,80 T600,120 T800,40" fill="none" stroke="#d4fb00" stroke-linecap="round" stroke-width="4"></path>
+                            <path d="M0,150 Q100,120 200,160 T400,80 T600,120 T800,40 V200 H0 Z" fill="url(#chartGradient)"></path>
+                            <circle cx="800" cy="40" fill="#0e0e0e" r="6" stroke="#d4fb00" stroke-width="2"></circle>
+                        </svg>
+                    </div>
+                    <div class="flex justify-between mt-4 text-on-surface-variant text-[10px] font-headline font-black tracking-widest px-4">
+                        <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Weekly Pulse Heatmap -->
+            <section class="col-span-12 lg:col-span-4 glass-card rounded-3xl p-8 border border-outline-variant/10">
+                <h2 class="text-xl font-headline font-black uppercase tracking-tight italic mb-6">Weekly Pulse</h2>
+                <div class="grid grid-cols-7 gap-3 mb-8">
+                    {% for i in "1234567" %}
+                    <div class="aspect-square {% if forloop.counter < 5 %}bg-primary-container shadow-[0_0_12px_rgba(212,251,0,0.3)]{% else %}bg-surface-container-highest{% endif %} rounded-lg"></div>
+                    {% endfor %}
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs uppercase tracking-widest font-black text-on-surface-variant">Avg. Intensity</span>
+                        <span class="text-2xl font-headline font-black text-secondary italic">84%</span>
+                    </div>
+                    <div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                        <div class="h-full bg-secondary w-[84%]"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personal Stats -->
+            <section class="col-span-12 md:col-span-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all">
+                <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1">Calories Burned</p>
+                <h3 class="text-4xl font-headline font-black text-on-surface italic">12,480</h3>
+            </section>
+            <section class="col-span-12 md:col-span-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all">
+                <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1">Workouts</p>
+                <h3 class="text-4xl font-headline font-black text-on-surface italic">{{ attendance_count }}</h3>
+            </section>
+            <section class="col-span-12 md:col-span-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all">
+                <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1">Avg Score</p>
+                <h3 class="text-4xl font-headline font-black text-secondary italic">A+</h3>
+            </section>
+            <section class="col-span-12 md:col-span-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all">
+                <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
+                <h3 class="text-4xl font-headline font-black text-primary-container italic uppercase">{{ member.status }}</h3>
+            </section>
+
+            <!-- Booked Sessions -->
+            <section class="col-span-12 lg:col-span-7 bg-surface-container rounded-3xl p-8 border border-outline-variant/10">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-headline font-black italic uppercase tracking-tighter">Booked Sessions</h2>
+                    <a class="text-primary-container text-xs font-black uppercase tracking-widest hover:underline" href="#">View All</a>
+                </div>
+                <div class="space-y-4">
+                    {% for attendance in recent_attendance %}
+                    <div class="flex items-center gap-6 p-4 bg-surface-container-highest rounded-2xl border border-outline-variant/5">
+                        <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary-container">
+                            <span class="material-symbols-outlined">fitness_center</span>
+                        </div>
+                        <div class="flex-grow">
+                            <h4 class="font-headline font-black text-sm uppercase italic">Session: {{ attendance.get_zone_display }}</h4>
+                            <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">{{ attendance.check_in|date:"l, d M — H:i" }}</p>
+                        </div>
+                        <span class="material-symbols-outlined text-outline text-sm">chevron_right</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-on-surface-variant text-sm py-4">No recent sessions found.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="col-span-12 lg:col-span-5 flex flex-col gap-4">
+                <div class="bg-primary-container p-8 rounded-3xl text-on-primary relative overflow-hidden group h-full">
+                    <h3 class="text-3xl font-headline font-black italic tracking-tighter relative z-10 leading-none mb-4 uppercase">Level Up<br/>Your Routine</h3>
+                    <button class="bg-black text-white px-8 py-3 rounded-xl font-headline font-black text-[10px] uppercase tracking-widest relative z-10 hover:scale-105 transition-all">Personal Training</button>
+                    <span class="material-symbols-outlined absolute -bottom-6 -right-6 text-[160px] opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700">trending_up</span>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
