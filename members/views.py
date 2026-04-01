@@ -251,3 +251,57 @@ def toggle_attendance(request):
             messages.success(request, 'Welcome to Kinetic Pulse! Your session has started.')
             
     return redirect('member_dashboard')
+
+
+@login_required
+def member_plans(request):
+    """View to list all active membership plans for the member"""
+    if not hasattr(request.user, 'member_profile'):
+        return redirect('home')
+    
+    member = request.user.member_profile
+    from plans.models import MembershipPlan
+    plans = MembershipPlan.objects.filter(is_active=True).order_by('price')
+    
+    context = {
+        'member': member,
+        'plans': plans,
+        'page': 'membership',
+    }
+    return render(request, 'members/plans.html', context)
+
+
+@login_required
+def process_plan_payment(request, plan_id):
+    """Simulates a payment process and updates member plan/status"""
+    if not hasattr(request.user, 'member_profile'):
+        return redirect('home')
+    
+    member = request.user.member_profile
+    from plans.models import MembershipPlan
+    from payments.models import Payment
+    plan = get_object_or_404(MembershipPlan, pk=plan_id)
+    
+    if request.method == 'POST':
+        # 1. Create a Payment Record
+        Payment.objects.create(
+            member=member,
+            plan=plan,
+            amount=plan.price,
+            payment_date=timezone.now().date(),
+            payment_method='online',
+            status='paid',
+            transaction_id=f"TXN-{timezone.now().strftime('%Y%m%d%H%M%S')}"
+        )
+        
+        # 2. Update Member Status and Plan
+        member.plan = plan
+        member.status = 'active'
+        # Calculate new expiry: today + duration_months
+        member.membership_expiry = timezone.now().date() + timedelta(days=plan.duration_months * 30)
+        member.save()
+        
+        messages.success(request, f'Welcome to the {plan.name} tier! Your membership is now active.')
+        return redirect('member_dashboard')
+        
+    return redirect('member_plans')

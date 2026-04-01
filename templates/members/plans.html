@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>KINETICA | Membership Tiers</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f5ffc5",
+                        "primary-container": "#d4fb00",
+                        "on-primary": "#556600",
+                        "secondary": "#00eefc",
+                        "tertiary": "#fddb42",
+                        "background": "#0e0e0e",
+                        "surface": "#0e0e0e",
+                        "surface-container": "#1a1a1a",
+                        "surface-container-low": "#131313",
+                        "surface-container-high": "#20201f",
+                        "surface-container-highest": "#262626",
+                        "on-surface": "#ffffff",
+                        "on-surface-variant": "#adaaaa",
+                        "outline-variant": "#484847",
+                        "error": "#ff7351",
+                    },
+                    fontFamily: {
+                        "headline": ["Lexend"],
+                        "body": ["Inter"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-card { background: rgba(38, 38, 38, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .kinetic-gradient { background: linear-gradient(135deg, #d4fb00 0%, #00eefc 100%); }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+    <!-- Top Navigation Rail -->
+    <nav class="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-outline-variant/10 flex justify-between items-center px-8 h-20">
+        <a href="{% url 'member_dashboard' %}" class="text-2xl font-black text-primary-container italic tracking-tighter uppercase font-headline">KINETICA</a>
+        <div class="hidden md:flex gap-8">
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Workouts</a>
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Schedule</a>
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Nutrition</a>
+        </div>
+        <div class="flex items-center gap-6">
+            <button class="text-on-surface-variant hover:text-white transition-all"><span class="material-symbols-outlined">notifications</span></button>
+            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+                {% if member.photo %}
+                    <img src="{{ member.photo.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full bg-surface-container flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">person</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Side Navigation -->
+    <aside class="fixed left-0 top-20 h-[calc(100vh-5rem)] w-64 z-40 bg-surface/80 backdrop-blur-lg flex flex-col py-6 px-4 gap-2 font-headline font-medium border-r border-outline-variant/10">
+        <div class="mb-8 px-4">
+            <h3 class="text-primary-container font-black text-lg uppercase tracking-tight">{{ member.get_full_name }}</h3>
+            <p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold">{{ member.plan.name|default:"Elite Member" }}</p>
+        </div>
+        <nav class="flex-grow space-y-1 text-xs uppercase tracking-widest font-bold">
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors {% if page == 'member_dashboard' %}bg-surface-container-highest text-primary-container border-l-4 border-primary-container rounded-r-xl{% endif %}" href="{% url 'member_dashboard' %}">
+                <span class="material-symbols-outlined">grid_view</span>Dashboard
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors {% if page == 'performance' %}bg-surface-container-highest text-primary-container border-l-4 border-primary-container rounded-r-xl{% endif %}" href="{% url 'member_attendance' %}">
+                <span class="material-symbols-outlined">insights</span>Performance
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="#">
+                <span class="material-symbols-outlined">event_repeat</span>Classes
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 bg-surface-container-highest text-primary-container border-l-4 border-primary-container rounded-r-xl" href="{% url 'member_plans' %}">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">card_membership</span>Membership
+            </a>
+        </nav>
+        <button class="mt-4 kinetic-gradient text-on-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest hover:scale-95 transition-all">Book Session</button>
+        <div class="mt-auto space-y-1 text-xs uppercase tracking-widest font-bold">
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white transition-colors" href="#"><span class="material-symbols-outlined">help</span>Support</a>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-error transition-colors">
+                    <span class="material-symbols-outlined">logout</span>Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-64 mt-20 p-8 min-h-screen">
+        <header class="mb-10">
+            <h1 class="text-5xl font-headline font-black tracking-tighter mb-2 italic">MEMBERSHIP <span class="text-primary-container uppercase">Tiers</span></h1>
+            <p class="text-on-surface-variant font-body uppercase tracking-widest text-xs font-bold">Select a plan to activate your peak performance status.</p>
+        </header>
+
+        {% if messages %}
+        <div class="mb-8 space-y-2">
+            {% for message in messages %}
+            <div class="flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border border-outline-variant/10 {% if message.tags == 'success' %}bg-primary-container text-on-primary{% else %}bg-surface-container text-white{% endif %} transition-all animate-pulse">
+                <span class="material-symbols-outlined">{% if message.tags == 'success' %}check_circle{% else %}info{% endif %}</span>
+                <p class="text-sm font-black uppercase tracking-widest">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for plan in plans %}
+            <div class="bg-surface-container rounded-[2.5rem] p-8 border border-outline-variant/10 flex flex-col relative overflow-hidden group hover:border-primary-container/30 transition-all duration-500">
+                <!-- Plan Header -->
+                <div class="mb-8 relative z-10">
+                    <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] {% if plan.color_label == 'primary' %}bg-primary-container/10 text-primary-container{% elif plan.color_label == 'secondary' %}bg-secondary/10 text-secondary{% else %}bg-tertiary/10 text-tertiary{% endif %} mb-4 inline-block">
+                        {{ plan.name }}
+                    </span>
+                    <div class="flex items-baseline gap-1 mt-4">
+                        <span class="text-5xl font-headline font-black italic">₹{{ plan.price|floatformat:0 }}</span>
+                        <span class="text-on-surface-variant text-xs font-bold uppercase">/{{ plan.duration_months }} Mo</span>
+                    </div>
+                </div>
+
+                <!-- Features List -->
+                <ul class="space-y-4 mb-10 flex-grow relative z-10">
+                    {% for feature in plan.get_features_list %}
+                    <li class="flex items-center gap-3 text-sm font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">
+                        <span class="material-symbols-outlined text-primary-container text-lg">check_circle</span>
+                        {{ feature }}
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Action -->
+                <form method="post" action="{% url 'process_plan_payment' plan.pk %}" class="relative z-10">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full py-4 rounded-2xl font-headline font-black text-xs uppercase tracking-[0.2em] transition-all
+                        {% if plan.pk == member.plan.pk %}
+                        bg-surface-container-highest text-on-surface-variant cursor-default
+                        {% else %}
+                        kinetic-gradient text-on-primary hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(212,251,0,0.3)]
+                        {% endif %}">
+                        {% if plan.pk == member.plan.pk %}Current Plan{% else %}Choose {{ plan.name }}{% endif %}
+                    </button>
+                </form>
+
+                <!-- Decorative Icon -->
+                <span class="material-symbols-outlined absolute -bottom-10 -right-10 text-[180px] opacity-[0.03] -rotate-12 group-hover:rotate-0 transition-transform duration-700">
+                    {% if plan.color_label == 'primary' %}bolt{% elif plan.color_label == 'secondary' %}star{% else %}workspace_premium{% endif %}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

@@ -68,6 +68,37 @@
       </div>
     </div>
 
+    <!-- Login Credentials -->
+    <div class="bg-surface-container rounded-2xl p-8 border border-outline-variant/10">
+      <h2 class="text-sm font-black uppercase tracking-widest text-on-surface-variant mb-6 flex items-center gap-2">
+        <span class="material-symbols-outlined text-tertiary">lock</span> Login Credentials
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Username *</label>
+          {{ form.username }}
+          {% if form.username.errors %}<p class="text-error text-xs mt-1">{{ form.username.errors.0 }}</p>{% endif %}
+          <p class="text-[10px] text-on-surface-variant mt-2 uppercase tracking-widest">Used by member to log in to their dashboard</p>
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">{% if member %}New {% endif %}Password {% if not member %}*{% endif %}</label>
+          {{ form.password }}
+          {% if form.password.errors %}<p class="text-error text-xs mt-1">{{ form.password.errors.0 }}</p>{% endif %}
+          {% if member %}<p class="text-[10px] text-on-surface-variant mt-2 uppercase tracking-widest">Leave blank to keep current</p>{% endif %}
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Confirm Password {% if not member %}*{% endif %}</label>
+          {{ form.confirm_password }}
+          {% if form.confirm_password.errors %}<p class="text-error text-xs mt-1">{{ form.confirm_password.errors.0 }}</p>{% endif %}
+          {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+              <p class="text-error text-xs mt-1">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
     <!-- Membership Info -->
     <div class="bg-surface-container rounded-2xl p-8 border border-outline-variant/10">
       <h2 class="text-sm font-black uppercase tracking-widest text-on-surface-variant mb-6 flex items-center gap-2">
