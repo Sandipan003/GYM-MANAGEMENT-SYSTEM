@@ -8,6 +8,7 @@ import json
 from members.models import Member
 from payments.models import Payment
 from attendance.models import Attendance
+from .models import Equipment, Facility
 
 
 def home(request):
@@ -123,3 +124,63 @@ def dashboard(request):
         'page': 'staff',
     }
     return render(request, 'core/dashboard.html', context)
+
+
+def facility_view(request):
+    """Facility showcase page"""
+    facilities = Facility.objects.all()
+    equipment_by_category = {}
+    
+    for equipment in Equipment.objects.filter(status='active'):
+        category = equipment.get_category_display()
+        if category not in equipment_by_category:
+            equipment_by_category[category] = []
+        equipment_by_category[category].append(equipment)
+    
+    context = {
+        'facilities': facilities,
+        'equipment_by_category': equipment_by_category,
+    }
+    return render(request, 'core/facility.html', context)
+
+
+def metrics_view(request):
+    """Metrics and analytics page"""
+    today = timezone.now().date()
+    now = timezone.now()
+    month_start = today.replace(day=1)
+    
+    # Statistics
+    total_members = Member.objects.filter(status='active').count()
+    total_checkins_today = Attendance.objects.filter(
+        check_in__date=today
+    ).count()
+    monthly_revenue = Payment.objects.filter(
+        payment_date__gte=month_start,
+        status='paid'
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Active members today
+    active_today = Attendance.objects.filter(
+        check_out__isnull=True
+    ).select_related('member').count()
+    
+    context = {
+        'total_members': total_members,
+        'total_checkins_today': total_checkins_today,
+        'monthly_revenue': monthly_revenue,
+        'active_today': active_today,
+        'today': today,
+    }
+    return render(request, 'core/metrics.html', context)
+
+
+def membership_view(request):
+    """Membership and pricing page"""
+    from plans.models import MembershipPlan
+    plans = MembershipPlan.objects.filter(is_active=True)
+    
+    context = {
+        'plans': plans,
+    }
+    return render(request, 'core/membership.html', context)

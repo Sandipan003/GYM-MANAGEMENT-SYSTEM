@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html class="dark" lang="en">
 <head>
@@ -48,12 +49,12 @@
 <body class="bg-background text-on-background font-body">
     <!-- TopNavBar -->
     <nav class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-md flex justify-between items-center px-8 h-20">
-        <div class="text-2xl font-black tracking-tighter text-primary font-headline uppercase">KINETIC PULSE</div>
+        <a href="{% url 'home' %}" class="text-2xl font-black tracking-tighter text-primary font-headline uppercase hover:text-primary-container transition-colors">KINETIC PULSE</a>
         <div class="hidden md:flex gap-10">
-            <a class="text-primary-container font-bold border-b-2 border-primary-container pb-1 font-headline tracking-tight uppercase" href="#">Training</a>
-            <a class="text-on-surface-variant hover:text-white transition-colors font-headline tracking-tight uppercase" href="#">Facility</a>
-            <a class="text-on-surface-variant hover:text-white transition-colors font-headline tracking-tight uppercase" href="#">Metrics</a>
-            <a class="text-on-surface-variant hover:text-white transition-colors font-headline tracking-tight uppercase" href="#">Membership</a>
+            <a href="{% url 'home' %}" class="text-primary-container font-bold border-b-2 border-primary-container pb-1 font-headline tracking-tight uppercase hover:scale-105 transition-transform" title="Home">Training</a>
+            <a href="{% url 'facility' %}" class="text-on-surface-variant hover:text-white transition-colors font-headline tracking-tight uppercase hover:scale-105 transition-transform" title="View Facilities">Facility</a>
+            <a href="{% url 'metrics' %}" class="text-on-surface-variant hover:text-white transition-colors font-headline tracking-tight uppercase hover:scale-105 transition-transform" title="Metrics & Analytics">Metrics</a>
+            <a href="{% url 'membership' %}" class="text-on-surface-variant hover:text-white transition-colors font-headline tracking-tight uppercase hover:scale-105 transition-transform" title="Membership Plans">Membership</a>
         </div>
         <div class="flex items-center gap-6">
             {% if user.is_authenticated %}
@@ -80,12 +81,12 @@
                     Pushing the boundaries of human performance through elite-level training, biomechanical tracking, and a community of high-achievers.
                 </p>
                 <div class="flex flex-wrap gap-4">
-                    <button class="bg-primary-container text-on-primary-container px-10 py-4 rounded-xl font-headline font-black text-lg tracking-widest uppercase hover:scale-105 transition-transform">
+                    <a href="{% url 'login' %}" class="inline-block bg-primary-container text-on-primary-container px-10 py-4 rounded-xl font-headline font-black text-lg tracking-widest uppercase hover:scale-105 transition-transform">
                         JOIN THE MOVEMENT
-                    </button>
-                    <button class="border border-outline-variant/40 text-on-surface px-10 py-4 rounded-xl font-headline font-bold text-lg tracking-widest uppercase backdrop-blur-sm hover:bg-surface-variant/20 transition-colors">
+                    </a>
+                    <a href="{% url 'facility' %}" class="inline-block border border-outline-variant/40 text-on-surface px-10 py-4 rounded-xl font-headline font-bold text-lg tracking-widest uppercase backdrop-blur-sm hover:bg-surface-variant/20 transition-colors">
                         VIEW FACILITY
-                    </button>
+                    </a>
                 </div>
             </div>
             <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
@@ -95,14 +96,14 @@
         </section>
 
         <!-- Member Analytics Section -->
-        <section class="py-24 px-8 md:px-20 bg-surface">
+        <section id="facility-section" class="py-24 px-8 md:px-20 bg-surface">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
                 <div class="lg:col-span-4 space-y-4">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-[2px] bg-primary"></div>
                         <span class="text-primary font-headline font-bold tracking-widest uppercase text-sm">Real-Time</span>
                     </div>
-                    <h2 class="font-headline font-bold text-5xl tracking-tight leading-tight uppercase">Live Performance</h2>
+                    <h2 class="font-headline font-bold text-5xl tracking-tight leading-tight uppercase text-white">Live Performance</h2>
                     <p class="text-on-surface-variant max-w-sm">Monitor our facility metrics in real-time. Our sensors track activity levels across all training zones.</p>
                 </div>
                 <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -150,8 +151,6 @@
                             {% empty %}
                             <p class="text-on-surface-variant text-sm">No live activity at the moment.</p>
                             {% endfor %}
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
