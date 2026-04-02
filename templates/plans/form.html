@@ -8,7 +8,7 @@
   </a>
   <h1 class="text-4xl font-black font-headline tracking-tighter mb-8">{{ action }} Membership Plan</h1>
 
-  <form method="post" class="space-y-6">
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
     {% csrf_token %}
     <div class="bg-surface-container rounded-2xl p-8 border border-outline-variant/10 space-y-5">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -43,6 +43,18 @@
             {{ form.is_active }}
             <span class="text-sm font-bold">Active</span>
           </label>
+        </div>
+        <div class="md:col-span-2">
+          <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4 block">Cover Image</label>
+          
+          {% if form.instance.photo %}
+          <div class="mb-4">
+              <img src="{{ form.instance.photo.url }}" class="h-32 object-cover rounded-xl border border-outline-variant/30">
+          </div>
+          {% endif %}
+
+          {{ form.photo }}
+          {% if form.photo.errors %}<p class="text-error text-xs mt-1">{{ form.photo.errors.0 }}</p>{% endif %}
         </div>
         <div class="md:col-span-2">
           <label class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2 block">Short Description</label>

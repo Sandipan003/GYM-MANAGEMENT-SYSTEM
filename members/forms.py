@@ -144,3 +144,87 @@ class MemberForm(forms.ModelForm):
         if commit:
             member.save()
         return member
+
+
+def from_plans_import():
+    from plans.models import MembershipPlan
+    return MembershipPlan.objects.all()
+
+
+class MemberSignupForm(forms.Form):
+    first_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full',
+            'placeholder': 'First Name'
+        })
+    )
+    last_name = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full',
+            'placeholder': 'Last Name'
+        })
+    )
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full',
+            'placeholder': 'email@example.com'
+        })
+    )
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full',
+            'placeholder': 'Phone Number'
+        })
+    )
+    username = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full',
+            'placeholder': 'Choose a username'
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full',
+            'placeholder': 'Minimum 8 characters'
+        })
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full',
+            'placeholder': 'Repeat password'
+        })
+    )
+    plan = forms.ModelChoiceField(
+        queryset=from_plans_import(),
+        widget=forms.Select(attrs={
+            'class': 'form-select bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full'
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from plans.models import MembershipPlan
+        self.fields['plan'].queryset = MembershipPlan.objects.filter(is_active=True)
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Username taken.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if Member.objects.filter(email=email).exists():
+            raise forms.ValidationError("Email already registered.")
+        return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get('password') != cleaned_data.get('confirm_password'):
+            raise forms.ValidationError("Passwords do not match.")
+        return cleaned_data

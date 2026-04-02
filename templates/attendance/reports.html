@@ -52,7 +52,7 @@
     <!-- Yesterday Tab Contents -->
     <div x-show="activeTab === 'yesterday'" class="space-y-4">
         {% if yesterdays_checkins %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {% for record in yesterdays_checkins %}
           {% include 'attendance/partials/attendance_card.html' with record=record %}
           {% endfor %}
@@ -67,7 +67,7 @@
     <!-- Today Tab Contents -->
     <div x-show="activeTab === 'today'" class="space-y-4">
         {% if todays_checkins %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {% for record in todays_checkins %}
           {% include 'attendance/partials/attendance_card.html' with record=record %}
           {% endfor %}
@@ -82,7 +82,7 @@
     <!-- Tomorrow Tab Contents -->
     <div x-show="activeTab === 'tomorrow'" class="space-y-4">
         {% if tomorrows_checkins %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {% for record in tomorrows_checkins %}
           {% include 'attendance/partials/attendance_card.html' with record=record %}
           {% endfor %}

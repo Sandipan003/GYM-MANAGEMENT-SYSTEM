@@ -1,5 +1,7 @@
 from django.db import models
-
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Equipment(models.Model):
     """Gym equipment with photo and details"""
@@ -47,7 +49,7 @@ class Facility(models.Model):
     name = models.CharField(max_length=100)
     zone_type = models.CharField(max_length=20, choices=ZONE_TYPES)
     description = models.TextField()
-    photo = models.ImageField(upload_to='facilities/')
+    photo = models.ImageField(upload_to='facilities/', blank=True, null=True)
     capacity = models.PositiveIntegerField()
     features = models.TextField(help_text="Comma-separated features")
     operating_hours = models.CharField(max_length=100, default="6:00 AM - 11:00 PM")
@@ -59,3 +61,24 @@ class Facility(models.Model):
     
     def __str__(self):
         return self.name
+
+class StaffProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='staff_profile')
+    photo = models.ImageField(upload_to='staff/', blank=True, null=True)
+    bio = models.TextField(blank=True, max_length=500)
+    
+    def __str__(self):
+        return f"Profile - {self.user.username}"
+
+@receiver(post_save, sender=User)
+def create_staff_profile(sender, instance, created, **kwargs):
+    if created and instance.is_staff:
+        StaffProfile.objects.get_or_create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_staff_profile(sender, instance, **kwargs):
+    if instance.is_staff:
+        if hasattr(instance, 'staff_profile'):
+            instance.staff_profile.save()
+        else:
+            StaffProfile.objects.get_or_create(user=instance)

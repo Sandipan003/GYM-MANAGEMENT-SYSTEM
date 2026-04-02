@@ -5,7 +5,7 @@ from .models import MembershipPlan
 class PlanForm(forms.ModelForm):
     class Meta:
         model = MembershipPlan
-        fields = ['name', 'slug', 'price', 'duration_months', 'description', 'features', 'is_featured', 'color_label', 'is_active']
+        fields = ['name', 'slug', 'price', 'duration_months', 'description', 'features', 'is_featured', 'color_label', 'photo', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full',
@@ -34,6 +34,9 @@ class PlanForm(forms.ModelForm):
             }),
             'color_label': forms.Select(attrs={
                 'class': 'form-select bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full'
+            }),
+            'photo': forms.FileInput(attrs={
+                'class': 'form-input bg-surface-container-highest border-outline-variant text-on-surface rounded-xl px-4 py-3 w-full'
             }),
             'is_featured': forms.CheckboxInput(attrs={
                 'class': 'form-checkbox rounded text-primary-container'

@@ -119,6 +119,15 @@
         </div>
         <span class="material-symbols-outlined text-on-surface-variant group-hover:text-black">chevron_right</span>
       </a>
+      <a href="{% url 'facility_manage' %}" class="w-full group flex items-center justify-between p-4 bg-primary/10 hover:bg-primary-container rounded-2xl transition-all duration-300">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center group-hover:bg-on-primary-container/20 transition-colors">
+            <span class="material-symbols-outlined text-primary group-hover:text-on-primary-container">room_preferences</span>
+          </div>
+          <span class="font-bold uppercase tracking-tight group-hover:text-on-primary-container">Manage Facility</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-primary-container">chevron_right</span>
+      </a>
       <a href="{% url 'attendance_reports' %}" class="w-full group flex items-center justify-between p-4 bg-tertiary/10 hover:bg-tertiary rounded-2xl transition-all duration-300 mb-4">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center group-hover:bg-black/10 transition-colors">

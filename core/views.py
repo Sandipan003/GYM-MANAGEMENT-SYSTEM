@@ -1,14 +1,16 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q
+from django.contrib import messages
 from datetime import timedelta, date
 import json
 
 from members.models import Member
 from payments.models import Payment
 from attendance.models import Attendance
-from .models import Equipment, Facility
+from .models import Equipment, Facility, StaffProfile
+from .forms import FacilityForm, EquipmentForm, UserUpdateForm, StaffProfileForm
 
 
 def home(request):
@@ -35,6 +37,8 @@ def home(request):
 @login_required
 def login_success(request):
     """Redirect users to appropriate dashboard based on role"""
+    import django.contrib.messages as messages
+    
     if request.user.is_staff:
         return redirect('staff')
     else:
@@ -42,7 +46,8 @@ def login_success(request):
         if hasattr(request.user, 'member_profile'):
             return redirect('member_dashboard')
         else:
-            # If logged in but no member profile, just go home or admin
+            # If logged in but no member profile, allow them to view home but inform them
+            messages.info(request, f"Welcome, {request.user.username}. Note: No member profile is linked to your account yet. Please contact staff.")
             return redirect('home')
 
 
@@ -144,6 +149,128 @@ def facility_view(request):
     return render(request, 'core/facility.html', context)
 
 
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def facility_manage(request):
+    """Admin: Manage Facilities and Equipment List"""
+    facilities = Facility.objects.all()
+    equipment_list = Equipment.objects.all()
+    context = {
+        'facilities': facilities,
+        'equipment_list': equipment_list,
+        'page': 'facility',
+    }
+    return render(request, 'core/admin/facility_list.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def facility_add(request):
+    """Admin: Add Facility"""
+    if request.method == 'POST':
+        form = FacilityForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Facility added successfully!')
+            return redirect('facility_manage')
+    else:
+        form = FacilityForm()
+    
+    return render(request, 'core/admin/facility_form.html', {'form': form, 'title': 'Create Facility'})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def facility_edit(request, pk):
+    """Admin: Edit Facility"""
+    facility = get_object_or_404(Facility, pk=pk)
+    if request.method == 'POST':
+        form = FacilityForm(request.POST, request.FILES, instance=facility)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Facility updated!')
+            return redirect('facility_manage')
+    else:
+        form = FacilityForm(instance=facility)
+    
+    return render(request, 'core/admin/facility_form.html', {'form': form, 'title': 'Edit Facility'})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def facility_delete(request, pk):
+    """Admin: Delete Facility"""
+    facility = get_object_or_404(Facility, pk=pk)
+    if request.method == 'POST':
+        facility.delete()
+        messages.success(request, 'Facility deleted.')
+    return redirect('facility_manage')
+
+# EQUIPMENT CRUD
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def equipment_add(request):
+    """Admin: Add Equipment"""
+    if request.method == 'POST':
+        form = EquipmentForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Equipment Added!')
+            return redirect('facility_manage')
+    else:
+        form = EquipmentForm()
+    return render(request, 'core/admin/equipment_form.html', {'form': form, 'title': 'Add Equipment'})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def profile_settings(request):
+    """Admin: Profile and Account Settings"""
+    # Ensure profile exists
+    profile, created = StaffProfile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = StaffProfileForm(request.POST, request.FILES, instance=profile)
+        
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, 'Profile system updated successfully!')
+            return redirect('profile_settings')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = StaffProfileForm(instance=profile)
+        
+    context = {
+        'u_form': u_form,
+        'p_form': p_form,
+        'title': 'Account Identity',
+        'page': 'profile'
+    }
+    return render(request, 'core/admin/profile_settings.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def equipment_edit(request, pk):
+    """Admin: Edit Equipment"""
+    equipment = get_object_or_404(Equipment, pk=pk)
+    if request.method == 'POST':
+        form = EquipmentForm(request.POST, request.FILES, instance=equipment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Equipment Updated!')
+            return redirect('facility_manage')
+    else:
+        form = EquipmentForm(instance=equipment)
+    return render(request, 'core/admin/equipment_form.html', {'form': form, 'title': 'Edit Equipment'})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def equipment_delete(request, pk):
+    """Admin: Delete Equipment"""
+    equipment = get_object_or_404(Equipment, pk=pk)
+    if request.method == 'POST':
+        equipment.delete()
+        messages.success(request, 'Equipment Removed.')
+    return redirect('facility_manage')
+
 def metrics_view(request):
     """Metrics and analytics page"""
     today = timezone.now().date()
@@ -152,9 +279,7 @@ def metrics_view(request):
     
     # Statistics
     total_members = Member.objects.filter(status='active').count()
-    total_checkins_today = Attendance.objects.filter(
-        check_in__date=today
-    ).count()
+    total_checkins_today = Attendance.objects.filter(check_in__date=today).count()
     monthly_revenue = Payment.objects.filter(
         payment_date__gte=month_start,
         status='paid'

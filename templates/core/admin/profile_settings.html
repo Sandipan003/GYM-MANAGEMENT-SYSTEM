@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}Account Identity{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="mb-12">
+        <h1 class="text-6xl font-black font-headline tracking-tighter text-on-surface uppercase italic mb-2">Account <span class="text-primary-container">Identity</span></h1>
+        <p class="text-on-surface-variant font-medium text-lg italic">Personalize your administrative presence at KINETIC PULSE.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="grid grid-cols-12 gap-12">
+        {% csrf_token %}
+        
+        <!-- Left: Basic Identity -->
+        <div class="col-span-12 lg:col-span-8 space-y-8">
+            <div class="bg-surface-container rounded-[3rem] p-10 border border-outline-variant/10 shadow-2xl relative overflow-hidden">
+                <h3 class="text-xl font-headline font-black uppercase tracking-tight mb-8 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">fingerprint</span>
+                    Authentication & Bio
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4 pl-1">Primary Username</label>
+                        {{ u_form.username }}
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4 pl-1">Contact Email</label>
+                        {{ u_form.email }}
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4 pl-1">First Identity</label>
+                        {{ u_form.first_name }}
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4 pl-1">Last Identity</label>
+                        {{ u_form.last_name }}
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4 pl-1">System Bio / Status</label>
+                        {{ p_form.bio }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Section Mockup -->
+            <div class="bg-surface-container/50 rounded-[3rem] p-10 border border-outline-variant/10 flex items-center justify-between group cursor-pointer hover:bg-surface-container-highest transition-all">
+                <div class="flex items-center gap-6">
+                    <div class="w-14 h-14 bg-surface-container-highest rounded-2xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <span class="material-symbols-outlined text-primary">security</span>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-black uppercase tracking-tight">Security Credentials</h4>
+                        <p class="text-xs text-on-surface-variant uppercase tracking-widest font-bold">Update System Password & Encryption</p>
+                    </div>
+                </div>
+                <a href="/admin/password_change/" class="px-6 py-3 bg-surface-container-highest rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-outline-variant/20 group-hover:border-primary/40 transition-all">Secure Re-Auth</a>
+            </div>
+        </div>
+
+        <!-- Right: Visual Identity -->
+        <div class="col-span-12 lg:col-span-4 space-y-8">
+            <div class="bg-surface-container rounded-[3rem] p-10 border border-outline-variant/10 shadow-2xl relative overflow-hidden flex flex-col items-center">
+                <h3 class="text-sm font-black uppercase tracking-widest text-on-surface-variant mb-10 w-full text-center">Visual Override</h3>
+                
+                <div class="relative group mb-8">
+                    <div class="w-48 h-48 rounded-[2.5rem] overflow-hidden border-4 border-primary-container/20 group-hover:border-primary-container/50 transition-all shadow-2xl relative">
+                        {% if user.staff_profile.photo %}
+                        <img src="{{ user.staff_profile.photo.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full bg-surface-container-highest flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[80px] text-outline">account_circle</span>
+                        </div>
+                        {% endif %}
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                           <span class="material-symbols-outlined text-white text-3xl">upload</span>
+                        </div>
+                    </div>
+                    <!-- Hidden Input logic would be added here in a real app or use a label -->
+                    <div class="mt-4">
+                        {{ p_form.photo }}
+                    </div>
+                </div>
+                
+                <div class="w-full space-y-4">
+                    <button type="submit" class="w-full kinetic-gradient text-on-primary py-5 rounded-2xl font-headline font-black text-sm uppercase tracking-widest hover:scale-[1.02] hover:shadow-[0_0_50px_rgba(212,251,0,0.3)] transition-all">
+                        Sync Account State
+                    </button>
+                    <a href="{% url 'staff' %}" class="block w-full py-5 text-center bg-surface-container-highest rounded-2xl font-black text-xs uppercase tracking-widest text-on-surface-variant hover:text-white transition-colors">
+                        Discard Edits
+                    </a>
+                </div>
+            </div>
+
+            <!-- Profile Meta Info -->
+            <div class="p-8 border border-outline-variant/10 rounded-[2.5rem] bg-surface-container-low flex flex-col gap-4">
+                <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
+                    <span>Account Active Since</span>
+                    <span class="text-white">{{ user.date_joined|date:"M Y" }}</span>
+                </div>
+                <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
+                    <span>Privilege Level</span>
+                    <span class="text-primary-container">System Architect</span>
+                </div>
+                <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
+                    <span>Current Auth State</span>
+                    <span class="text-secondary">Secured</span>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<style>
+    /* Custom stealth file input styling */
+    input[type="file"] {
+        font-size: 10px;
+        color: #adaaaa;
+        background: transparent;
+        padding: 5px;
+        width: 100%;
+        text-transform: uppercase;
+        font-weight: 800;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

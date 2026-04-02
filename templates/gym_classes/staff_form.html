@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <a href="{% url 'staff_class_list' %}" class="flex items-center gap-2 text-on-surface-variant hover:text-secondary text-sm font-bold uppercase tracking-widest mb-8 transition-colors w-fit">
+    <span class="material-symbols-outlined text-sm">arrow_back</span> Session Schedule
+  </a>
+
+  <header class="mb-10">
+    <h1 class="text-4xl font-black font-headline tracking-tighter mb-2 italic uppercase">FORGE <span class="text-secondary uppercase">Session</span></h1>
+    <p class="text-on-surface-variant font-body uppercase tracking-widest text-[10px] font-bold">{{ title }}</p>
+  </header>
+
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+    <div class="bg-surface-container/60 backdrop-blur-lg rounded-[2.5rem] p-10 border border-outline-variant/10 space-y-6">
+      
+      <div class="space-y-2">
+        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-secondary mb-2 block">Class Identifier</label>
+        {{ form.name }}
+        {% if form.name.errors %}<p class="text-error text-xs mt-1">{{ form.name.errors.0 }} </p>{% endif %}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Instructor Name</label>
+            {{ form.instructor }}
+            {% if form.instructor.errors %}<p class="text-error text-xs mt-1">{{ form.instructor.errors.0 }} </p>{% endif %}
+        </div>
+        <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Scheduled Day</label>
+            {{ form.day }}
+            {% if form.day.errors %}<p class="text-error text-xs mt-1">{{ form.day.errors.0 }} </p>{% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Start Time</label>
+            {{ form.start_time }}
+            {% if form.start_time.errors %}<p class="text-error text-xs mt-1">{{ form.start_time.errors.0 }} </p>{% endif %}
+        </div>
+        <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Duration (Min)</label>
+            {{ form.duration_minutes }}
+            {% if form.duration_minutes.errors %}<p class="text-error text-xs mt-1">{{ form.duration_minutes.errors.0 }} </p>{% endif %}
+        </div>
+        <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Capacity</label>
+            {{ form.capacity }}
+            {% if form.capacity.errors %}<p class="text-error text-xs mt-1">{{ form.capacity.errors.0 }} </p>{% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Experience Level</label>
+            {{ form.difficulty }}
+            {% if form.difficulty.errors %}<p class="text-error text-xs mt-1">{{ form.difficulty.errors.0 }} </p>{% endif %}
+        </div>
+        <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Visual Theme</label>
+            {{ form.color_label }}
+            {% if form.color_label.errors %}<p class="text-error text-xs mt-1">{{ form.color_label.errors.0 }} </p>{% endif %}
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Icon Name (Material Symbols)</label>
+        {{ form.icon }}
+        {% if form.icon.errors %}<p class="text-error text-xs mt-1">{{ form.icon.errors.0 }} </p>{% endif %}
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-4 block">Class Cover Image</label>
+        
+        {% if form.instance.photo %}
+        <div class="mb-4">
+            <img src="{{ form.instance.photo.url }}" class="h-32 object-cover rounded-xl border border-outline-variant/30">
+        </div>
+        {% endif %}
+
+        {{ form.photo }}
+        {% if form.photo.errors %}<p class="text-error text-xs mt-1">{{ form.photo.errors.0 }} </p>{% endif %}
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant mb-2 block">Session Description</label>
+        {{ form.description }}
+        {% if form.description.errors %}<p class="text-error text-xs mt-1">{{ form.description.errors.0 }} </p>{% endif %}
+      </div>
+
+      <div class="flex items-center gap-4 pt-6">
+        <button type="submit" class="flex-1 kinetic-gradient text-on-primary font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest hover:scale-95 transition-all shadow-[0_0_30px_rgba(0,238,252,0.2)]">
+          Authorize Session
+        </button>
+        <a href="{% url 'staff_class_list' %}" class="px-8 py-4 bg-surface-container-highest text-on-surface-variant font-black text-[10px] uppercase tracking-widest rounded-2xl hover:text-white transition-colors">
+          Abort
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

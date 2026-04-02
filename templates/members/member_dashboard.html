@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>KINETICA | Member Performance Panel</title>
+    <title>KINETICA | Elite Member Performance Group</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -45,13 +45,13 @@
 <body class="bg-background text-on-surface">
     <!-- Top Navigation Rail -->
     <nav class="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-outline-variant/10 flex justify-between items-center px-8 h-20">
-        <div class="text-2xl font-black text-primary-container italic tracking-tighter uppercase font-headline">KINETICA</div>
-        <div class="hidden md:flex gap-8">
-            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Workouts</a>
-            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Schedule</a>
-            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="#">Nutrition</a>
+        <div class="text-2xl font-black text-primary-container italic tracking-tighter uppercase font-headline border-r border-outline-variant/10 pr-6">KINETICA</div>
+        <div class="hidden md:flex gap-8 px-6">
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="{% url 'member_dashboard' %}">Workouts</a>
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="{% url 'class_list' %}">Schedule</a>
+            <a class="text-on-surface-variant hover:text-white transition-all font-headline text-sm uppercase tracking-tight" href="{% url 'member_plans' %}">Membership</a>
         </div>
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-6 ml-auto">
             <button class="text-on-surface-variant hover:text-white transition-all"><span class="material-symbols-outlined">notifications</span></button>
             <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
                 {% if member.photo %}
@@ -72,21 +72,21 @@
             <p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold">{{ member.plan.name|default:"Elite Member" }}</p>
         </div>
         <nav class="flex-grow space-y-1 text-xs uppercase tracking-widest font-bold">
-            <a class="flex items-center gap-3 px-4 py-3 bg-surface-container-highest text-primary-container border-l-4 border-primary-container rounded-r-xl" href="#">
+            <a class="flex items-center gap-3 px-4 py-3 bg-surface-container-highest text-primary-container border-l-4 border-primary-container rounded-r-xl" href="{% url 'member_dashboard' %}">
                 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">grid_view</span>Dashboard
             </a>
-            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors {% if page == 'performance' %}bg-surface-container-highest text-primary-container{% endif %}" href="{% url 'member_attendance' %}">
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="{% url 'member_attendance' %}">
                 <span class="material-symbols-outlined">insights</span>Performance
             </a>
-            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="#">
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="{% url 'class_list' %}">
                 <span class="material-symbols-outlined">event_repeat</span>Classes
             </a>
             <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white hover:bg-surface-container-low transition-colors" href="{% url 'member_plans' %}">
                 <span class="material-symbols-outlined">card_membership</span>Membership
             </a>
         </nav>
-        <button class="mt-4 kinetic-gradient text-on-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest hover:scale-95 transition-all">Book Session</button>
-        <div class="mt-auto space-y-1 text-xs uppercase tracking-widest font-bold">
+        <a href="{% url 'class_list' %}" class="block mt-4 kinetic-gradient text-on-primary font-black py-4 rounded-xl text-center text-xs uppercase tracking-widest hover:scale-95 transition-all">Book Session</a>
+        <div class="mt-auto space-y-1 text-xs uppercase tracking-widest font-bold border-t border-outline-variant/20 pt-4">
             <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-white transition-colors" href="#"><span class="material-symbols-outlined">help</span>Support</a>
             <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
@@ -99,10 +99,24 @@
 
     <!-- Main Content -->
     <main class="ml-64 mt-20 p-8 min-h-screen">
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div class="px-5 py-4 rounded-2xl border border-outline-variant/20 flex items-center gap-3
+                {% if message.tags == 'success' %}bg-primary-container/10 border-primary-container/30 text-primary-container
+                {% elif message.tags == 'error' %}bg-error/10 border-error/30 text-error
+                {% else %}bg-surface-container text-white{% endif %}">
+                <span class="material-symbols-outlined text-sm">{% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}</span>
+                <p class="text-xs uppercase tracking-widest font-bold">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <header class="mb-10 flex justify-between items-end">
             <div>
                 <h1 class="text-5xl font-headline font-black tracking-tighter mb-2">PERFORMANCE <span class="text-primary-container uppercase">Velocity</span></h1>
-                <p class="text-on-surface-variant font-body">Tracking your kinetic momentum since {{ member.join_date|date:"F Y" }}.</p>
+                <p class="text-on-surface-variant font-body font-medium">Tracking your kinetic momentum since {{ member.join_date|date:"F Y" }}.</p>
             </div>
             <div class="flex items-center gap-4">
                 {% if active_session %}
@@ -111,47 +125,52 @@
                         <span class="text-[10px] font-black text-secondary uppercase tracking-widest">Active Now</span>
                     </div>
                 {% endif %}
-                <button class="bg-surface-container-highest px-6 py-3 rounded-xl text-xs font-headline font-bold uppercase tracking-widest border border-outline-variant/20">Report</button>
-                <a href="{% url 'home' %}" class="kinetic-gradient text-on-primary px-6 py-3 rounded-xl text-xs font-headline font-bold uppercase tracking-widest">Facility Live</a>
+                <a href="{% url 'class_list' %}" class="kinetic-gradient text-on-primary px-6 py-3 rounded-xl text-xs font-headline font-black uppercase tracking-widest shadow-xl hover:shadow-primary-container/20 transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">bolt</span> Explore Gym
+                </a>
             </div>
         </header>
 
         <div class="grid grid-cols-12 gap-6">
             <!-- Large Chart Section -->
-            <section class="col-span-12 lg:col-span-8 bg-surface-container rounded-3xl p-8 relative overflow-hidden group border border-outline-variant/10">
+            <section class="col-span-12 lg:col-span-8 bg-surface-container rounded-3xl p-8 relative overflow-hidden group border border-outline-variant/10 shadow-xl">
                 <div class="relative z-10">
                     <div class="flex justify-between items-center mb-8">
-                        <h2 class="text-xl font-headline font-black uppercase tracking-tight italic">Intensity Trends</h2>
-                        <span class="px-3 py-1 bg-primary-container/10 text-primary-container rounded-full text-[10px] font-black uppercase tracking-widest">Last 6 Months</span>
+                        <h2 class="text-xl font-headline font-black uppercase tracking-tight italic flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary-container">monitoring</span> Intensity Trends
+                        </h2>
+                        <span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant rounded-full text-[10px] font-black uppercase tracking-widest border border-outline-variant/20">Last 6 Months</span>
                     </div>
-                    <div class="h-64 w-full flex items-end justify-between px-4">
+                    <div class="h-64 w-full flex items-end justify-between px-0">
                         <svg class="w-full h-full overflow-visible" viewbox="0 0 800 200">
                             <lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
-                                <stop offset="0%" stop-color="#d4fb00" stop-opacity="0.5"></stop>
+                                <stop offset="0%" stop-color="#d4fb00" stop-opacity="0.3"></stop>
                                 <stop offset="100%" stop-color="#d4fb00" stop-opacity="0"></stop>
                             </lineargradient>
-                            <path d="{{ svg_path }}" fill="none" stroke="#d4fb00" stroke-linecap="round" stroke-width="4"></path>
                             <path d="{{ svg_fill }}" fill="url(#chartGradient)"></path>
-                            <circle cx="800" cy="{{ last_point_y }}" fill="#0e0e0e" r="6" stroke="#d4fb00" stroke-width="2"></circle>
+                            <path d="{{ svg_path }}" fill="none" stroke="#d4fb00" stroke-linecap="round" stroke-width="4"></path>
+                            {% for trend in monthly_trends %}
+                            <circle cx="{{ trend.x }}" cy="{{ trend.y }}" fill="#d4fb00" r="5"></circle>
+                            {% endfor %}
                         </svg>
                     </div>
-                    <div class="flex justify-between mt-4 text-on-surface-variant text-[10px] font-headline font-black tracking-widest px-4">
+                    <div class="flex justify-between mt-4 text-on-surface-variant text-[10px] font-headline font-black tracking-widest px-0">
                         {% for trend in monthly_trends %}
-                        <span>{{ trend.month|date:"M"|default_if_none:""|upper }}</span>
+                        <span>Month {{ trend.month }}</span>
                         {% endfor %}
                     </div>
                 </div>
             </section>
 
             <!-- Weekly Pulse Heatmap -->
-            <section class="col-span-12 lg:col-span-4 glass-card rounded-3xl p-8 border border-outline-variant/10">
+            <section class="col-span-12 lg:col-span-4 glass-card rounded-3xl p-8 border border-outline-variant/10 shadow-xl flex flex-col">
                 <h2 class="text-xl font-headline font-black uppercase tracking-tight italic mb-6">Weekly Pulse</h2>
-                <div class="grid grid-cols-7 gap-3 mb-8">
+                <div class="grid grid-cols-7 gap-3 mb-auto">
                     {% for attended in weekly_pulse %}
-                    <div class="aspect-square {% if attended %}bg-primary-container shadow-[0_0_12px_rgba(212,251,0,0.3)]{% else %}bg-surface-container-highest{% endif %} rounded-lg transition-all" title="Day {{ forloop.counter }}"></div>
+                    <div class="aspect-square {% if attended %}bg-primary-container shadow-[0_0_12px_rgba(212,251,0,0.3)]{% else %}bg-surface-container-highest{% endif %} rounded-lg transition-all border border-outline-variant/5"></div>
                     {% endfor %}
                 </div>
-                <div class="space-y-4">
+                <div class="space-y-4 pt-6">
                     <div class="flex items-center justify-between">
                         <span class="text-xs uppercase tracking-widest font-black text-on-surface-variant">Avg. Intensity</span>
                         <span class="text-2xl font-headline font-black text-secondary italic">84%</span>
@@ -163,71 +182,80 @@
             </section>
 
             <!-- Personal Stats -->
-            <section class="col-span-12 md:col-span-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all">
+            <section class="col-span-12 md:col-span-3 bg-surface-container rounded-[2rem] p-6 border border-outline-variant/10 hover:border-primary-container/30 transition-all shadow-lg flex flex-col justify-center items-center text-center">
+                <span class="material-symbols-outlined text-on-surface-variant text-4xl mb-4 opacity-50">local_fire_department</span>
                 <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1">Calories Burned</p>
                 <h3 class="text-4xl font-headline font-black text-on-surface italic">{{ calories_burned|default:"0" }}</h3>
             </section>
-            <section class="col-span-12 md:col-span-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all">
+            
+            <section class="col-span-12 md:col-span-3 bg-surface-container rounded-[2rem] p-6 border border-outline-variant/10 hover:border-primary-container/30 transition-all shadow-lg flex flex-col justify-center items-center text-center">
+                <span class="material-symbols-outlined text-secondary text-4xl mb-4 opacity-90 animate-pulse">check_circle</span>
                 <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1">Workouts</p>
                 <h3 class="text-4xl font-headline font-black text-on-surface italic">{{ attendance_count }}</h3>
             </section>
-            <section class="col-span-12 md:col-span-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all">
-                <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1">Efficiency</p>
-                <h3 class="text-4xl font-headline font-black text-secondary italic">OPTIMAL</h3>
+            
+            <section class="col-span-12 md:col-span-3 bg-surface-container rounded-[2rem] p-6 border border-outline-variant/10 hover:border-primary-container/30 transition-all shadow-lg flex flex-col justify-center items-center text-center text-primary-container">
+                <span class="material-symbols-outlined text-4xl mb-4 opacity-90">verified</span>
+                <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1 text-white">Efficiency</p>
+                <h3 class="text-3xl font-headline font-black italic">OPTIMAL</h3>
             </section>
-            <section class="col-span-12 md:col-span-3 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all">
-                <p class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
-                <h3 class="text-4xl font-headline font-black text-primary-container italic uppercase">{{ member.status }}</h3>
+            
+            <section class="col-span-12 md:col-span-3 bg-primary-container text-on-primary rounded-[2rem] p-6 shadow-xl shadow-primary-container/20 flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                <span class="material-symbols-outlined text-4xl mb-4 relative z-10 group-hover:scale-110 transition-transform">star</span>
+                <p class="text-[10px] font-black uppercase tracking-widest mb-1 relative z-10 opacity-70">Status</p>
+                <h3 class="text-3xl font-headline font-black italic uppercase relative z-10">{{ member.status }}</h3>
             </section>
 
             <!-- Booked Sessions -->
-            <section class="col-span-12 lg:col-span-7 bg-surface-container rounded-3xl p-8 border border-outline-variant/10">
+            <section class="col-span-12 lg:col-span-7 bg-surface-container rounded-3xl p-8 border border-outline-variant/10 shadow-xl">
                 <div class="flex justify-between items-center mb-8">
                     <h2 class="text-2xl font-headline font-black italic uppercase tracking-tighter">Performance Log</h2>
-                    <a class="text-primary-container text-xs font-black uppercase tracking-widest hover:underline" href="{% url 'member_attendance' %}">View History</a>
+                    <a class="bg-surface-container-highest px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-surface-container-low transition-colors" href="{% url 'member_attendance' %}">View History</a>
                 </div>
                 <div class="space-y-4">
                     {% for attendance in recent_attendance %}
-                    <div class="flex items-center gap-6 p-4 bg-surface-container-highest rounded-2xl border border-outline-variant/5">
-                        <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary-container">
+                    <div class="flex items-center gap-6 p-4 bg-surface-container-highest rounded-2xl border border-outline-variant/5 hover:border-primary-container/20 transition-all group">
+                        <div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-primary-container group-hover:bg-primary-container group-hover:text-black transition-colors">
                             <span class="material-symbols-outlined">fitness_center</span>
                         </div>
                         <div class="flex-grow">
-                            <h4 class="font-headline font-black text-sm uppercase italic">Session: {{ attendance.get_zone_display }}</h4>
-                            <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">{{ attendance.check_in|date:"l, d M — H:i" }}</p>
+                            <h4 class="font-headline font-black text-sm uppercase italic">Zone: {{ attendance.get_zone_display }}</h4>
+                            <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mt-1">{{ attendance.check_in|date:"l, d M — H:i" }}</p>
                         </div>
-                        <span class="material-symbols-outlined text-outline text-sm">chevron_right</span>
                     </div>
                     {% empty %}
-                    <p class="text-on-surface-variant text-sm py-4">No recent sessions found.</p>
+                    <div class="p-8 text-center border border-dashed border-outline-variant/20 rounded-2xl">
+                        <span class="material-symbols-outlined text-4xl text-outline-variant mb-2">history</span>
+                        <p class="text-on-surface-variant text-xs uppercase tracking-widest font-bold">No recent sessions found.</p>
+                    </div>
                     {% endfor %}
                 </div>
             </section>
 
             <!-- Quick Actions -->
             <section class="col-span-12 lg:col-span-5 flex flex-col gap-4">
-                <div class="bg-primary-container p-8 rounded-3xl text-on-primary relative overflow-hidden group h-full flex flex-col justify-between">
+                <div class="bg-surface-container-highest p-8 rounded-3xl relative overflow-hidden group h-full flex flex-col justify-between border border-outline-variant/10 shadow-xl">
                     <div>
                         <h3 class="text-3xl font-headline font-black italic tracking-tighter relative z-10 leading-none mb-4 uppercase">
                             {% if active_session %}Currently in Gym{% else %}Gym Access{% endif %}
                         </h3>
-                        <p class="text-xs font-bold uppercase tracking-widest mb-6 opacity-80 relative z-10">
+                        <p class="text-xs font-bold uppercase tracking-widest mb-6 text-on-surface-variant relative z-10">
                             {% if active_session %}Entered at {{ active_session.check_in|date:"H:i" }}{% else %}Mark your entry to start your workout.{% endif %}
                         </p>
                     </div>
                     <form method="post" action="{% url 'toggle_attendance' %}" class="relative z-10">
                         {% csrf_token %}
                         {% if active_session %}
-                            <button type="submit" class="w-full bg-black text-white px-8 py-4 rounded-xl font-headline font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center justify-center gap-3">
-                                <span class="material-symbols-outlined">logout</span> I am leaving gym
+                            <button type="submit" class="w-full bg-error text-white px-8 py-5 rounded-2xl font-headline font-black text-xs uppercase tracking-widest hover:scale-105 shadow-lg shadow-error/20 transition-all flex items-center justify-center gap-3">
+                                <span class="material-symbols-outlined">logout</span> Initiate Log Out
                             </button>
                         {% else %}
-                            <button type="submit" class="w-full bg-black text-white px-8 py-4 rounded-xl font-headline font-black text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center justify-center gap-3">
-                                <span class="material-symbols-outlined">how_to_reg</span> I am entered in gym
+                            <button type="submit" class="w-full kinetic-gradient text-black px-8 py-5 rounded-2xl font-headline font-black text-xs uppercase tracking-widest hover:scale-105 shadow-lg shadow-primary-container/20 transition-all flex items-center justify-center gap-3">
+                                <span class="material-symbols-outlined">login</span> Secure Entry
                             </button>
                         {% endif %}
                     </form>
-                    <span class="material-symbols-outlined absolute -bottom-6 -right-6 text-[160px] opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700">trending_up</span>
+                    <span class="material-symbols-outlined absolute -bottom-6 -right-6 text-[160px] opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700">security</span>
                 </div>
             </section>
         </div>

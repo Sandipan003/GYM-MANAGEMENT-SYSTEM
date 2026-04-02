@@ -15,7 +15,7 @@ def plan_list(request):
 @login_required
 def plan_add(request):
     if request.method == 'POST':
-        form = PlanForm(request.POST)
+        form = PlanForm(request.POST, request.FILES)
         if form.is_valid():
             plan = form.save()
             messages.success(request, f'Plan "{plan.name}" created successfully!')
@@ -31,7 +31,7 @@ def plan_add(request):
 def plan_edit(request, pk):
     plan = get_object_or_404(MembershipPlan, pk=pk)
     if request.method == 'POST':
-        form = PlanForm(request.POST, instance=plan)
+        form = PlanForm(request.POST, request.FILES, instance=plan)
         if form.is_valid():
             form.save()
             messages.success(request, f'Plan "{plan.name}" updated successfully!')

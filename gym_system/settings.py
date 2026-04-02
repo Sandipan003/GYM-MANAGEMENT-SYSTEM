@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'plans',
     'payments',
     'attendance',
+    'gym_classes',
 ]
 
 MIDDLEWARE = [
@@ -58,15 +59,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gym_system.wsgi.application'
 
-# Database — MySQL configuration
+# Database — MySQL (configured for phpMyAdmin/MAMP)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME', default='kinetic_pulse_db'),
-        'USER': config('DB_USER', default='root'),
-        'PASSWORD': config('DB_PASSWORD', default='root'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='8889', cast=int),
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', default='8889'),
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             'charset': 'utf8mb4',

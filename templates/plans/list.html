@@ -33,6 +33,14 @@
       </div>
       {% endif %}
 
+      <!-- Plan Image -->
+      {% if plan.photo %}
+      <div class="h-48 -mx-8 -mt-8 mb-6 overflow-hidden rounded-t-2xl relative">
+          <img src="{{ plan.photo.url }}" alt="{{ plan.name }}" class="w-full h-full object-cover mix-blend-overlay opacity-80">
+          <div class="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/60 to-transparent"></div>
+      </div>
+      {% endif %}
+
       <!-- Plan Header -->
       <div class="mb-8">
         <div class="flex justify-between items-start mb-3">

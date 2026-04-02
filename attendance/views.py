@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.db.models import Count
 from datetime import timedelta
 from .models import Attendance
-from .forms import AttendanceCheckInForm
+from .forms import AttendanceCheckInForm, AttendanceEditForm
 from members.models import Member
 import datetime
 
@@ -84,3 +84,31 @@ def checkout(request, pk):
     attendance.save()
     messages.success(request, f'{attendance.member.get_full_name()} checked out successfully!')
     return redirect('attendance_reports')
+
+
+@login_required
+def attendance_edit(request, pk):
+    attendance = get_object_or_404(Attendance, pk=pk)
+    if request.method == 'POST':
+        form = AttendanceEditForm(request.POST, instance=attendance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Attendance record for {attendance.member.get_full_name()} updated successfully!')
+            return redirect('attendance_reports')
+    else:
+        form = AttendanceEditForm(instance=attendance)
+
+    context = {'form': form, 'attendance': attendance, 'page': 'attendance'}
+    return render(request, 'attendance/edit.html', context)
+
+
+@login_required
+def attendance_delete(request, pk):
+    attendance = get_object_or_404(Attendance, pk=pk)
+    if request.method == 'POST':
+        name = attendance.member.get_full_name()
+        attendance.delete()
+        messages.success(request, f'Attendance record for {name} deleted.')
+        return redirect('attendance_reports')
+    
+    return render(request, 'attendance/confirm_delete.html', {'attendance': attendance, 'page': 'attendance'})

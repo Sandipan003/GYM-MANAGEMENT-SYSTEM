@@ -134,15 +134,9 @@
                             </div>
 
                             <!-- CTA Button -->
-                            {% if plan.is_featured %}
-                            <a href="{% url 'login' %}" class="block w-full bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-headline font-bold tracking-tight uppercase text-center hover:scale-95 transition-all">
+                            <a href="{% url 'signup' %}?plan={{ plan.id }}" class="block w-full {% if plan.is_featured %}bg-primary-container text-on-primary-container shadow-[0_10px_30px_rgba(212,251,0,0.15)]{% else %}bg-outline-variant/30 text-on-surface{% endif %} px-6 py-4 rounded-2xl font-headline font-black tracking-[0.2em] uppercase text-[10px] text-center hover:scale-105 active:scale-95 transition-all">
                                 Get Started
                             </a>
-                            {% else %}
-                            <a href="{% url 'login' %}" class="block w-full bg-outline-variant/30 text-on-surface px-6 py-3 rounded-xl font-headline font-bold tracking-tight uppercase text-center hover:scale-95 transition-all">
-                                Get Started
-                            </a>
-                            {% endif %}
                         </div>
                     </div>
                     {% endfor %}

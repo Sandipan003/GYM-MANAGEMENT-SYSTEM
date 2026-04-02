@@ -12,4 +12,5 @@ urlpatterns = [
     path('membership/', views.member_plans, name='member_plans'),
     path('membership/pay/<int:plan_id>/', views.process_plan_payment, name='process_plan_payment'),
     path('attendance/toggle/', views.toggle_attendance, name='toggle_attendance'),
+    path('signup/', views.signup, name='signup'),
 ]

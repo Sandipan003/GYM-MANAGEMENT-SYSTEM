@@ -1,4 +1,4 @@
-mysqldump: [Warning] Using a password on the command line interface can be insecure.
+
 -- MySQL dump 10.13  Distrib 8.0.44, for macos12.7 (arm64)
 --
 -- Host: localhost    Database: kinetic_pulse_db

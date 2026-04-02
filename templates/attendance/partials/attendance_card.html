@@ -1,39 +1,67 @@
-<div class="relative pl-6 border-l-2 {% if not record.check_out %}border-primary-container/40{% else %}border-outline-variant/20{% endif %} py-4 group hover:bg-surface-container-low transition-all duration-300 rounded-r-2xl pr-4 border border-outline-variant/5 bg-surface-container-low/30">
-  <div class="absolute -left-[9px] top-5 w-4 h-4 rounded-full border-4 border-surface
-    {% if not record.check_out %}bg-primary-container shadow-[0_0_12px_rgba(212,251,0,0.5)]{% else %}bg-surface-container-highest{% endif %}"></div>
+<div class="relative pl-6 py-5 pr-5 group hover:-translate-y-1 hover:bg-surface-container-low transition-all duration-300 rounded-2xl border border-outline-variant/10 bg-surface-container/40 flex flex-col gap-5 shadow-lg">
+  <div class="absolute -left-[2px] top-0 bottom-0 w-1.5 rounded-l-2xl transition-all duration-300 group-hover:w-2 {% if not record.check_out %}bg-primary-container shadow-[0_0_15px_rgba(212,251,0,0.5)]{% else %}bg-outline-variant/30{% endif %}"></div>
   
-  <div class="flex items-center gap-4">
-    <div class="w-12 h-12 rounded-xl overflow-hidden bg-surface-container-highest flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500">
+  <div class="flex items-start gap-4">
+    <!-- Avatar -->
+    <div class="w-16 h-16 shrink-0 rounded-2xl overflow-hidden bg-surface-container-highest flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500 border border-outline-variant/10 shadow-inner">
       {% if record.member.photo %}
       <img src="{{ record.member.photo.url }}" class="w-full h-full object-cover"/>
       {% else %}
-      <span class="material-symbols-outlined text-on-surface-variant">person</span>
+      <span class="material-symbols-outlined text-on-surface-variant text-3xl">person</span>
       {% endif %}
     </div>
     
-    <div class="flex-1 min-w-0">
-      <p class="text-sm font-black tracking-tight uppercase truncate text-on-surface">{{ record.member.get_full_name }}</p>
-      <div class="flex flex-col gap-0.5">
-          <p class="text-[10px] {% if not record.check_out %}text-primary-container{% else %}text-on-surface-variant{% endif %} font-black uppercase tracking-widest">
-            {{ record.get_activity_display }}
-          </p>
-          <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-tighter">
-            In: {{ record.check_in|date:"H:i" }} {% if record.check_out %}· Out: {{ record.check_out|date:"H:i" }}{% endif %}
-          </p>
-      </div>
+    <!-- Info -->
+    <div class="flex-1 min-w-0 pt-1">
+      <h4 class="text-lg font-black font-headline tracking-tighter uppercase text-on-surface mb-1 truncate" title="{{ record.member.get_full_name }}">{{ record.member.get_full_name }}</h4>
+      <p class="text-xs {% if not record.check_out %}text-primary-container{% else %}text-on-surface-variant{% endif %} font-bold uppercase tracking-widest truncate flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-xs">fitness_center</span> {{ record.get_activity_display }}
+      </p>
+    </div>
+  </div>
+
+  <div class="bg-surface-container-highest/80 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center sm:items-stretch gap-4 border border-outline-variant/5">
+    
+    <!-- Timestamps -->
+    <div class="flex items-center gap-4 w-full sm:w-auto overflow-hidden">
+        <div class="flex flex-col">
+            <span class="text-[9px] font-black tracking-[0.2em] uppercase text-on-surface-variant/70 mb-1">Check-In</span>
+            <span class="text-sm font-bold text-on-surface uppercase">{{ record.check_in|date:"H:i" }}</span>
+        </div>
+        
+        {% if record.check_out %}
+        <div class="w-[1px] h-8 bg-outline-variant/20 mx-1"></div>
+        <div class="flex flex-col">
+            <span class="text-[9px] font-black tracking-[0.2em] uppercase text-on-surface-variant/70 mb-1">Check-Out</span>
+            <span class="text-sm font-bold text-on-surface-variant uppercase">{{ record.check_out|date:"H:i" }}</span>
+        </div>
+        {% else %}
+        <div class="w-[1px] h-8 bg-outline-variant/20 mx-1"></div>
+        <div class="flex flex-col opacity-50">
+            <span class="text-[9px] font-black tracking-[0.2em] uppercase text-on-surface-variant/70 mb-1">Status</span>
+            <span class="text-sm font-bold text-on-surface uppercase animate-pulse">ACTIVE</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Action Icons -->
+    <div class="flex items-center gap-1.5 w-full sm:w-auto justify-end shrink-0">
+      <a href="{% url 'attendance_edit' record.pk %}" class="w-10 h-10 rounded-lg flex items-center justify-center bg-surface-container hover:bg-white/10 text-on-surface-variant hover:text-white transition-colors" title="Edit Record">
+        <span class="material-symbols-outlined text-sm">edit</span>
+      </a>
+      <a href="{% url 'attendance_delete' record.pk %}" class="w-10 h-10 rounded-lg flex items-center justify-center bg-surface-container text-error/70 hover:bg-error hover:text-white transition-colors" title="Delete Record">
+        <span class="material-symbols-outlined text-sm">delete</span>
+      </a>
+      
+      {% if not record.check_out %}
+      <form method="post" action="{% url 'checkout' record.pk %}" class="ml-1">
+        {% csrf_token %}
+        <button type="submit" class="h-10 px-4 rounded-lg flex items-center justify-center bg-secondary/10 text-secondary hover:bg-secondary hover:text-on-secondary font-black text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(0,238,252,0.1)]" title="End Session">
+          Checkout
+        </button>
+      </form>
+      {% endif %}
     </div>
 
-    {% if not record.check_out %}
-    <form method="post" action="{% url 'checkout' record.pk %}">
-      {% csrf_token %}
-      <button type="submit" class="w-8 h-8 rounded-lg flex items-center justify-center bg-secondary/10 text-secondary hover:bg-secondary hover:text-on-secondary transition-all" title="End Session">
-        <span class="material-symbols-outlined text-sm">logout</span>
-      </button>
-    </form>
-    {% else %}
-    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-outline-variant/10 text-on-surface-variant">
-      <span class="material-symbols-outlined text-sm">verified</span>
-    </div>
-    {% endif %}
   </div>
 </div>

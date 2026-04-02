@@ -11,22 +11,25 @@
 
 ## ⚡ Core Features
 
-### 🏢 Staff & Admin Panel
+### 📊 Elite Dashboard
 - **Real-time KPI Tracking**: Live active member counts, monthly revenue, and facility occupancy.
 - **Revenue Velocity Chart**: Dynamic visual data representing the last 6 months of financial performance.
-- **Member CRM**: Full profiles with attendance history, payment logs, and personal details.
+- **Live Activity Feed**: Instantly view member check-ins and gym zone activity.
+
+### 👤 Member Management
+- **Full CRM**: Comprehensive profiles with attendance history, payment logs, and personal details.
+- **Smart Filtering**: Find members by status (Active, Expired, Pending) or specific membership plans.
 - **Auto-generated IDs**: Professional member identification system (#KP-0001).
 
-### 👤 Personalized Member Portal
-- **Member Dashboard**: Personal performance metrics, calories burned estimation, and workout trends.
-- **Secure Login**: Members can now log in using custom credentials set during enrollment.
-- **Self-Service Upgrades**: Members can browse membership tiers and "pay" (simulated) to instantly activate their status and tier.
-- **Live Check-in**: One-click "I am in the gym" logging directly from the member portal.
-
 ### 💳 Membership & Payments
-- **Tiered Plans**: Flexible pricing models with custom features (Elite, Pro, Starter, etc.).
-- **Automated Billing Status**: Members are switched to **ACTIVE** upon payment and auto-calculated expiry dates.
-- **Transaction Ledger**: Detailed history stored in MySQL for full auditing.
+- **Tiered Plans**: Flexible pricing models with custom features and durations.
+- **Automated Billing Status**: Members are automatically activated upon payment and expired once their term ends.
+- **Transaction Ledger**: Detailed history of all financial activities including multiple payment methods (UPI, Card, Cash).
+
+### 📈 Attendance Analytics
+- **Peak Hours Heatmap**: Identify facility usage patterns to optimize staff and equipment.
+- **Member Engagement**: Analytics on daily vs. weekly vs. occasional visitors.
+- **Live Check-in Tool**: Simple entry logging with automatic checkout management.
 
 ---
 
@@ -35,15 +38,16 @@
 ### 1. Prerequisites
 - Python 3.8+
 - MySQL Server (MAMP/XAMPP recommended)
-- `PyMySQL` driver for Django
 
-### 2. Database Backend (MySQL)
-KINETIC PULSE is optimized for **MySQL 8.0**. Ensure your server is running (default port `8889` for MAMP).
-1. Create a database named `kinetic_pulse_db` in **phpMyAdmin** or MySQL Shell.
-2. The application will auto-initialize the schema upon the first migration.
+### 2. Database Setup
+1. Create a MySQL database named `kinetic_pulse_db`.
+2. Import the provided `database_setup.sql` file:
+   ```bash
+   mysql -u root -p kinetic_pulse_db < database_setup.sql
+   ```
 
 ### 3. Environment Configuration
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory with the following:
 ```env
 SECRET_KEY=your-secret-key
 DEBUG=True
@@ -62,7 +66,7 @@ python manage.py migrate
 
 ### 5. Launch
 ```bash
-python manage.py runserver
+python3 manage.py runserver
 ```
 
 ---
@@ -70,16 +74,17 @@ python manage.py runserver
 ## 🔐 Credentials (Demo)
 Access the dashboard at `http://127.0.0.1:8000/`
 
-- **Staff Account**: `admin` / `admin123`
-- **Member Account**: `mysqluser123` / `password123`
+- **Username**: `admin`
+- **Password**: `admin123`
 
 ---
 
 ## 🎨 Tech Stack
 - **Backend**: Django 4.2 & PyMySQL
-- **Database**: MySQL 8.0 (viewable via phpMyAdmin)
+- **Database**: MySQL 8.0
 - **Frontend**: Vanilla HTML/JS, Tailwind CSS (CDN)
-- **Design**: Glassmorphism aesthetic with Lexend & Inter typography
+- **Icons**: Material Symbols by Google
+- **Typography**: Lexend & Inter
 
 ---
 
